@@ -71,6 +71,7 @@ namespace Magia
 		{
 			_pixels[i] = MixColor(_pixels[i], _currPixels[i]);
 		}
+		memset(_currPixels, 255, CANVAS_WIDTH* WINDOW_HEIGHT * sizeof(uint32_t));
 	}
 
 	/// <summary>
