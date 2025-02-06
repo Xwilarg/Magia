@@ -35,9 +35,14 @@ namespace Magia
 		canvas.w = CANVAS_WIDTH;
 		SDL_RectToFRect(&canvas, &fCanvas);
 
+		SetToValue(_pixelsScreen, WHITE_PIXEL, CANVAS_WIDTH * WINDOW_HEIGHT);
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			_pixelsScreen[i] = MixColor(_currPixels[i], _pixels[i]);
+			_pixelsScreen[i] = MixColor(_pixels[i], _pixelsScreen[i]);
+		}
+		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+		{
+			_pixelsScreen[i] = MixColor(_currPixels[i], _pixelsScreen[i]);
 		}
 		SDL_UpdateTexture(_framebuffer, &canvas, _pixelsScreen, CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
@@ -99,7 +104,7 @@ namespace Magia
 			g = ((brushG) + (canvasG)) / 2;
 			b = ((brushB) + (canvasB)) / 2;*/
 		}
-		a = 255;
+		a = 255; // TODO: Need to be calculated properly
 
 		return (r << 24) + (g << 16) + (b << 8) + a;
 	}
