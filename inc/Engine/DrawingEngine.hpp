@@ -15,11 +15,14 @@ namespace Magia
 
 		const std::array<int, 4>& GetColor() const noexcept;
 		void SetColor(int r, int g, int b, int a) noexcept;
+		int GetPenSize() const noexcept;
+		void SetPenSize(int size) noexcept;
 	private:
 		SDL_Renderer* _renderer;
 		SDL_Texture* _framebuffer;
 		uint32_t* _pixels;
 
 		std::array<int, 4> _color;
+		int _penSize;
 	};
 }

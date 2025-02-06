@@ -64,7 +64,7 @@ int main()
             r->Render();
         }
 
-        SDL_Delay(16);
+        SDL_Delay(10);
     }
 
     return 0;

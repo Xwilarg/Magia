@@ -5,11 +5,11 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _color()
+		: _renderer(renderer), _color(), _penSize(5)
 	{
-		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
-		_pixels = new uint32_t[WINDOW_WIDTH * WINDOW_HEIGHT];
-		memset(_pixels, 255, WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
+		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
+		_pixels = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
+		memset(_pixels, 255, CANVAS_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
 
 		SetColor(0, 0, 0, 255);
 	}
@@ -21,16 +21,30 @@ namespace Magia
 
 	void DrawingEngine::UpdateScreen() noexcept
 	{
-		SDL_UpdateTexture(_framebuffer, NULL, _pixels, WINDOW_WIDTH * sizeof(uint32_t)); // TODO: optimization
+		SDL_Rect canvas;
+		canvas.x = 0;
+		canvas.y = 0;
+		canvas.h = WINDOW_HEIGHT;
+		canvas.w = CANVAS_WIDTH;
+		SDL_UpdateTexture(_framebuffer, &canvas, _pixels, CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
 		SDL_RenderClear(_renderer);
-		SDL_RenderCopy(_renderer, _framebuffer, NULL, NULL);
+		SDL_RenderCopy(_renderer, _framebuffer, &canvas, &canvas);
 		SDL_RenderPresent(_renderer);
 	}
 
 	void DrawingEngine::Paint(int x, int y) noexcept
 	{
-		_pixels[y * WINDOW_WIDTH + x] = (_color[0] << 24) + (_color[1] << 16) + (_color[2] << 8) + _color[3];
+		for (int yPos = y - static_cast<int>(_penSize / 2.0f); yPos <= y + static_cast<int>(_penSize / 2.0f); yPos++)
+		{
+			for (int xPos = x - static_cast<int>(_penSize / 2.0f); xPos <= x + static_cast<int>(_penSize / 2.0f); xPos++)
+			{
+				if (y >= 0 && x >= 0 && y < WINDOW_HEIGHT && x < CANVAS_WIDTH)
+				{
+					_pixels[yPos * CANVAS_WIDTH + xPos] = (_color[0] << 24) + (_color[1] << 16) + (_color[2] << 8) + _color[3];
+				}
+			}
+		}
 	}
 
 	const std::array<int, 4>& DrawingEngine::GetColor() const noexcept
@@ -44,5 +58,15 @@ namespace Magia
 		_color[1] = g;
 		_color[2] = b;
 		_color[3] = a;
+	}
+
+	int DrawingEngine::GetPenSize() const noexcept
+	{
+		return _penSize;
+	}
+
+	void DrawingEngine::SetPenSize(int size) noexcept
+	{
+		_penSize = size;
 	}
 }
