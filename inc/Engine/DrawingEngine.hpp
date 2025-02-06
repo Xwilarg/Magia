@@ -21,6 +21,8 @@ namespace Magia
 		int GetPenForce() const noexcept;
 		void SetPenForce(int force) noexcept;
 	private:
+		bool IsPointInsideDrawingCanvas(int x, int y) noexcept;
+		void DrawPixel(int x, int y) noexcept;
 		SDL_Renderer* _renderer;
 		SDL_Texture* _framebuffer;
 		uint32_t* _pixels;

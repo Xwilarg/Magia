@@ -34,19 +34,36 @@ namespace Magia
 		SDL_RenderPresent(_renderer);
 	}
 
+	bool DrawingEngine::IsPointInsideDrawingCanvas(int x, int y) noexcept
+	{
+		return y >= 0 && x >= 0 && y < WINDOW_HEIGHT && x < CANVAS_WIDTH && _dist(_rng) < _penForce;
+	}
+
+	void DrawingEngine::DrawPixel(int x, int y) noexcept
+	{
+		_pixels[y * CANVAS_WIDTH + x] = (_color[0] << 24) + (_color[1] << 16) + (_color[2] << 8) + _color[3];
+	}
+
+	/// <summary>
+	/// Draw group of pixel at mouse pos
+	/// </summary>
 	void DrawingEngine::Paint(int x, int y) noexcept
 	{
-		// Draw in form of a circle using brush size
-		for (int yPos = y - static_cast<int>(_penSize / 2.0f); yPos <= y + static_cast<int>(_penSize / 2.0f); yPos++)
+		for (int yPos = y; yPos <= y + static_cast<int>(_penSize / 2.0f); yPos++)
 		{
-			for (int xPos = x - static_cast<int>(_penSize / 2.0f); xPos <= x + static_cast<int>(_penSize / 2.0f); xPos++)
+			for (int xPos = x; xPos <= x + static_cast<int>(_penSize / 2.0f); xPos++)
 			{
-				// TODO: All of that can prob be optimized too
-				if (yPos >= 0 && xPos >= 0 && yPos < WINDOW_HEIGHT && xPos < CANVAS_WIDTH // We are within the canvas...
-					&& _dist(_rng) < _penForce // ...and RNG tell us we are within brush force bounds
-					&& std::pow(xPos - x, 2) + std::pow(yPos - y, 2) < _penSize) // ... and we are within the 'circle' shape of the brush...
+				if ((xPos - x) * (xPos - x) + (yPos - y) * (yPos - y) < _penSize) // We are within the 'circle' shape of the brush
 				{
-					_pixels[yPos * CANVAS_WIDTH + xPos] = (_color[0] << 24) + (_color[1] << 16) + (_color[2] << 8) + _color[3];
+					// We only take a quadrant and use symmetry to get the rest
+					// This avoid the "is inside circle" check that is quite expensive
+					int xSym = x - (xPos - x);
+					int ySym = y - (yPos - y);
+
+					if (IsPointInsideDrawingCanvas(xPos, yPos)) DrawPixel(xPos, yPos);
+					if (IsPointInsideDrawingCanvas(xSym, yPos)) DrawPixel(xSym, yPos);
+					if (IsPointInsideDrawingCanvas(xPos, ySym)) DrawPixel(xPos, ySym);
+					if (IsPointInsideDrawingCanvas(xSym, ySym)) DrawPixel(xSym, ySym);
 				}
 			}
 		}
