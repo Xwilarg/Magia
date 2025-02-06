@@ -1,5 +1,6 @@
-#include "DrawingEngine.hpp"
+#include <cmath>
 
+#include "DrawingEngine.hpp"
 #include "config.hpp"
 
 namespace Magia
@@ -35,11 +36,12 @@ namespace Magia
 
 	void DrawingEngine::Paint(int x, int y) noexcept
 	{
+		// Draw in form of a circle using brush size
 		for (int yPos = y - static_cast<int>(_penSize / 2.0f); yPos <= y + static_cast<int>(_penSize / 2.0f); yPos++)
 		{
 			for (int xPos = x - static_cast<int>(_penSize / 2.0f); xPos <= x + static_cast<int>(_penSize / 2.0f); xPos++)
 			{
-				if (y >= 0 && x >= 0 && y < WINDOW_HEIGHT && x < CANVAS_WIDTH)
+				if (y >= 0 && x >= 0 && y < WINDOW_HEIGHT && x < CANVAS_WIDTH && std::pow(xPos - x, 2) + std::pow(yPos - y, 2) < _penSize) // TODO: All of that can prob be optimized too
 				{
 					_pixels[yPos * CANVAS_WIDTH + xPos] = (_color[0] << 24) + (_color[1] << 16) + (_color[2] << 8) + _color[3];
 				}

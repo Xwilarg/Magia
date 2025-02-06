@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <cmath>
 
 #include "BuiltinRenderer.hpp"
 #include "DebugRenderer.hpp"
