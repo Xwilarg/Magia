@@ -6,13 +6,13 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _color(), _penSize(5), _penForce(30), _dev(), _rng(_dev()), _dist(1, 100)
+		: _renderer(renderer), _color(), _penSize(5), _penForce(30), _drawMode(DrawMode::MULTIPLICATIVE), _dev(), _rng(_dev()), _dist(1, 100)
 	{
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
 		_pixels = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
-		memset(_pixels, 255, CANVAS_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
+		SetToValue(_pixels, TRANSPARENT_PIXEL, CANVAS_WIDTH * WINDOW_HEIGHT);
 		_currPixels = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
-		memset(_currPixels, 255, CANVAS_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
+		SetToValue(_currPixels, TRANSPARENT_PIXEL, CANVAS_WIDTH * WINDOW_HEIGHT);
 		_pixelsScreen = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
 
 		SetColor(0, 0, 0, 255);
@@ -35,10 +35,9 @@ namespace Magia
 		canvas.w = CANVAS_WIDTH;
 		SDL_RectToFRect(&canvas, &fCanvas);
 
-		memset(_pixelsScreen, 255, CANVAS_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			_pixelsScreen[i] = MixColor(_pixels[i], _currPixels[i]);
+			_pixelsScreen[i] = MixColor(_currPixels[i], _pixels[i]);
 		}
 		SDL_UpdateTexture(_framebuffer, &canvas, _pixelsScreen, CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
@@ -56,12 +55,49 @@ namespace Magia
 		_currPixels[y * CANVAS_WIDTH + x] = (_color[0] << 24) + (_color[1] << 16) + (_color[2] << 8) + _color[3];
 	}
 
-	uint32_t DrawingEngine::MixColor(uint32_t c1, uint32_t c2) const noexcept
+	int DrawingEngine::MixSingleValue(int c1V, int c1A, int c2V, int c2A) const noexcept
 	{
-		int r = (((c1 >> 24) & 0xFF) * ((c2 >> 24) & 0xFF)) / 255.0f;
-		int g = (((c1 >> 16) & 0xFF) * ((c2 >> 16) & 0xFF)) / 255.0f;
-		int b = (((c1 >> 8) & 0xFF) * ((c2 >> 8) & 0xFF)) / 255.0f;
-		int a = ((c1 & 0xFF) * (c2 & 0xFF)) / 255.0f;
+		float alpha1 = c1A / 255.0f;
+		float alpha2 = c2A / 255.0f;
+		float val1 = c1V / 255.0f;
+		float val2 = c2V / 255.0f;
+		return (std::pow(std::pow(val1, alpha1) * std::pow(val2, alpha2), 2 / (alpha1 + alpha2))) * 255;
+	}
+
+	uint32_t DrawingEngine::MixColor(uint32_t brush, uint32_t canvas) const noexcept
+	{
+		int brushR = (brush >> 24) & 0xFF;
+		int brushG = (brush >> 16) & 0xFF;
+		int brushB = (brush >> 8) & 0xFF;
+		int brushA = brush & 0xFF;
+		int canvasR = (canvas >> 24) & 0xFF;
+		int canvasG = (canvas >> 16) & 0xFF;
+		int canvasB = (canvas >> 8) & 0xFF;
+		int canvasA = canvas & 0xFF;
+
+		int r, g, b, a;
+		/*if (_drawMode == DrawMode::ADDITIVE)
+		{
+			r = (((c1 >> 24) & 0xFF) + ((c2 >> 24) & 0xFF)) / 2;
+			g = (((c1 >> 16) & 0xFF) + ((c2 >> 16) & 0xFF)) / 2;
+			b = (((c1 >> 8) & 0xFF) + ((c2 >> 8) & 0xFF)) / 2;
+			a = ((c1 & 0xFF) + (c2 & 0xFF)) / 2;
+		}
+		else*/
+		{
+			/*r = (((brush >> 24) & 0xFF) * ((canvas >> 24) & 0xFF)) / 255;
+			g = (((brush >> 16) & 0xFF) * ((canvas >> 16) & 0xFF)) / 255;
+			b = (((brush >> 8) & 0xFF) * ((canvas >> 8) & 0xFF)) / 255;
+			a = brush & 0xFF;*/
+
+			r = MixSingleValue(brushR, brushA, canvasR, canvasA);
+			g = MixSingleValue(brushG, brushA, canvasG, canvasA);
+			b = MixSingleValue(brushB, brushA, canvasB, canvasA);
+			/*r = ((brushR)+(canvasR)) / 2;
+			g = ((brushG) + (canvasG)) / 2;
+			b = ((brushB) + (canvasB)) / 2;*/
+		}
+		a = brushA;
 
 		return (r << 24) + (g << 16) + (b << 8) + a;
 	}
@@ -70,9 +106,9 @@ namespace Magia
 	{
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			_pixels[i] = MixColor(_pixels[i], _currPixels[i]);
+			_pixels[i] = MixColor(_currPixels[i], _pixels[i]);
 		}
-		memset(_currPixels, 255, CANVAS_WIDTH* WINDOW_HEIGHT * sizeof(uint32_t));
+		SetToValue(_currPixels, TRANSPARENT_PIXEL, CANVAS_WIDTH * WINDOW_HEIGHT);
 	}
 
 	/// <summary>
@@ -131,5 +167,15 @@ namespace Magia
 	void DrawingEngine::SetPenForce(int force) noexcept
 	{
 		_penForce = force;
+	}
+
+	DrawMode DrawingEngine::GetDrawMode() const noexcept
+	{
+		return _drawMode;
+	}
+
+	void DrawingEngine::SetDrawMode(DrawMode mode) noexcept
+	{
+		_drawMode = mode;
 	}
 }
