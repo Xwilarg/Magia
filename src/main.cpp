@@ -36,22 +36,27 @@ int main()
 
             case SDL_MOUSEBUTTONDOWN:
                 isMousePressed = true;
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                engine.Paint(x, y);
                 break;
 
             case SDL_MOUSEBUTTONUP:
                 isMousePressed = false;
                 break;
 
+            case SDL_MOUSEMOTION:
+                if (isMousePressed)
+                {
+                    int x, y;
+                    SDL_GetMouseState(&x, &y);
+                    engine.Paint(x, y);
+                }
+                break;
+
             default:
                 break;
             }
-        }
-
-        if (isMousePressed)
-        {
-            int x, y;
-            SDL_GetMouseState(&x, &y);
-            engine.Paint(x, y);
         }
 
         for (const auto& r : renderers)
