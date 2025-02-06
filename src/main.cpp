@@ -19,7 +19,7 @@ int main()
     bool isActive = true;
     bool isMousePressed = false;
 
-    int lastX, lastY;
+    float lastX, lastY;
     while (isActive)
     {
         SDL_Event event;
@@ -32,24 +32,24 @@ int main()
             }
             switch (event.type)
             {
-            case SDL_QUIT:
+            case SDL_EVENT_QUIT:
                 isActive = false;
                 break;
 
-            case SDL_MOUSEBUTTONDOWN:
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
                 isMousePressed = true;
                 SDL_GetMouseState(&lastX, &lastY);
                 engine.Paint(lastX, lastY);
                 break;
 
-            case SDL_MOUSEBUTTONUP:
+            case SDL_EVENT_MOUSE_BUTTON_UP:
                 isMousePressed = false;
                 break;
 
-            case SDL_MOUSEMOTION:
+            case SDL_EVENT_MOUSE_MOTION:
                 if (isMousePressed)
                 {
-                    int newX, newY;
+                    float newX, newY;
                     SDL_GetMouseState(&newX, &newY);
 
                     // Intepolate between last pos and current one

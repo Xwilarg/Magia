@@ -12,7 +12,7 @@ namespace Magia
             throw std::runtime_error("SDL failed to init: " + std::string(SDL_GetError()));
         }
 
-        SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, 0, &_window, &_renderer);
+        SDL_CreateWindowAndRenderer("Magia", WINDOW_WIDTH, WINDOW_HEIGHT, 0, &_window, &_renderer);
         if (!_window || !_renderer)
         {
             throw std::runtime_error("Window/Renderer failed to init: " + std::string(SDL_GetError()));

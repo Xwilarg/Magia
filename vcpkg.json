@@ -7,6 +7,6 @@
         "sdl2-renderer-binding"
       ]
     },
-    "sdl2"
+    "sdl3"
   ]
 }

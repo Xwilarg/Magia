@@ -23,14 +23,16 @@ namespace Magia
 	void DrawingEngine::UpdateScreen() noexcept
 	{
 		SDL_Rect canvas;
+		SDL_FRect fCanvas;
 		canvas.x = 0;
 		canvas.y = 0;
 		canvas.h = WINDOW_HEIGHT;
 		canvas.w = CANVAS_WIDTH;
+		SDL_RectToFRect(&canvas, &fCanvas);
 		SDL_UpdateTexture(_framebuffer, &canvas, _pixels, CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
 		SDL_RenderClear(_renderer);
-		SDL_RenderCopy(_renderer, _framebuffer, &canvas, &canvas);
+		SDL_RenderTexture(_renderer, _framebuffer, &fCanvas, &fCanvas);
 		SDL_RenderPresent(_renderer);
 	}
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDL2/SDL.h"
+#include "SDL3/SDL.h"
 #include "ARenderer.hpp"
 #include "DrawingEngine.hpp"
 
@@ -10,7 +10,7 @@ namespace Magia
 	{
 	public:
 		DebugRenderer(SDL_Window* window, SDL_Renderer* renderer, DrawingEngine& engine);
-		~DebugRenderer();
+		~DebugRenderer() noexcept;
 		void PrepareRender() noexcept override;
 		void Render() noexcept override;
 		void ProcessEvents(SDL_Event& events) noexcept override;
