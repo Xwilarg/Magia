@@ -13,6 +13,7 @@ namespace Magia
 		memset(_pixels, 255, CANVAS_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
 		_currPixels = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
 		memset(_currPixels, 255, CANVAS_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
+		_pixelsScreen = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
 
 		SetColor(0, 0, 0, 255);
 	}
@@ -21,6 +22,7 @@ namespace Magia
 	{
 		delete[] _pixels;
 		delete[] _currPixels;
+		delete[] _pixelsScreen;
 	}
 
 	void DrawingEngine::UpdateScreen() noexcept
@@ -33,13 +35,12 @@ namespace Magia
 		canvas.w = CANVAS_WIDTH;
 		SDL_RectToFRect(&canvas, &fCanvas);
 
-		auto finalPxls = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
+		memset(_pixelsScreen, 255, CANVAS_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			finalPxls[i] = MixColor(_pixels[i], _currPixels[i]);
+			_pixelsScreen[i] = MixColor(_pixels[i], _currPixels[i]);
 		}
-		SDL_UpdateTexture(_framebuffer, &canvas, finalPxls, CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
-		delete[] finalPxls;
+		SDL_UpdateTexture(_framebuffer, &canvas, _pixelsScreen, CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
 		SDL_RenderTexture(_renderer, _framebuffer, &fCanvas, &fCanvas);
 	}

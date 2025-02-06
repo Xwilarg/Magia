@@ -30,6 +30,8 @@ namespace Magia
 		uint32_t* _pixels;
 		uint32_t* _currPixels;
 
+		uint32_t* _pixelsScreen;
+
 		std::array<int, 4> _color;
 		int _penSize;
 		int _penForce; // 100 mean all points are colored, 50 mean half of them are
