@@ -11,9 +11,10 @@ int main()
 {
     std::vector<std::unique_ptr<Magia::ARenderer>> renderers;
     auto baseRenderer = std::make_unique<Magia::BuiltinRenderer>();
-
     Magia::DrawingEngine engine(baseRenderer->GetRenderer());
-    renderers.push_back(std::make_unique<Magia::DebugRenderer>(baseRenderer->GetWindow(), baseRenderer->GetRenderer(), engine));
+    auto debugRenderer = std::make_unique<Magia::DebugRenderer>(baseRenderer->GetWindow(), baseRenderer->GetRenderer(), engine);
+
+    renderers.push_back(std::move(debugRenderer));
     renderers.push_back(std::move(baseRenderer));
 
     bool isActive = true;
@@ -80,8 +81,6 @@ int main()
         {
             r->Render();
         }
-
-        SDL_Delay(10);
     }
 
     return 0;

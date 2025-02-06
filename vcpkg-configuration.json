@@ -13,7 +13,7 @@
     {
       "kind": "git",
       "repository": "https://github.com/constcuriosity/vcpkg/",
-      "reference": "vcpkg-sdl3",
+      "reference": "imgui-sdl3-bindings",
       "baseline": "7f93b84f30594ff059b01d280db99030bcb5e5a2",
       "packages": [ "imgui" ]
     }

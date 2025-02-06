@@ -7,7 +7,7 @@ namespace Magia
 {
 	BuiltinRenderer::BuiltinRenderer()
 	{
-        if (SDL_Init(SDL_INIT_VIDEO) != 0)
+        if (!SDL_Init(SDL_INIT_VIDEO))
         {
             throw std::runtime_error("SDL failed to init: " + std::string(SDL_GetError()));
         }
@@ -26,7 +26,7 @@ namespace Magia
 
     void BuiltinRenderer::PrepareRender() noexcept
     {
-        SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);
+        SDL_SetRenderDrawColor(_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(_renderer);
     }
 
