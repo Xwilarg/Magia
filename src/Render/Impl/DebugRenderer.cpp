@@ -6,8 +6,8 @@
 
 namespace Magia
 {
-	DebugRenderer::DebugRenderer(SDL_Window* window, SDL_Renderer* renderer)
-        : _renderer(renderer)
+	DebugRenderer::DebugRenderer(SDL_Window* window, SDL_Renderer* renderer, DrawingEngine& engine)
+        : _renderer(renderer), _engine(engine)
 	{
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -34,6 +34,10 @@ namespace Magia
 
     void DebugRenderer::Render() noexcept
     {
+        auto& engineC = _engine.GetColor();
+        float colors[4] = { engineC[0] / 255.0f, engineC[1] / 255.0f, engineC[2] / 255.0f, engineC[3] / 255.0f };
+        ImGui::ColorPicker4("Color", colors, 0, 0);
+        _engine.SetColor(static_cast<int>(colors[0] * 255.0f), static_cast<int>(colors[1] * 255.0f), static_cast<int>(colors[2] * 255.0f), static_cast<int>(colors[3] * 255.0f));
 
         ImGui::Render();
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), _renderer);

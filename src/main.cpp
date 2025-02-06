@@ -13,7 +13,7 @@ int main()
     auto baseRenderer = std::make_unique<Magia::BuiltinRenderer>();
 
     Magia::DrawingEngine engine(baseRenderer->GetRenderer());
-    renderers.push_back(std::make_unique<Magia::DebugRenderer>(baseRenderer->GetWindow(), baseRenderer->GetRenderer()));
+    renderers.push_back(std::make_unique<Magia::DebugRenderer>(baseRenderer->GetWindow(), baseRenderer->GetRenderer(), engine));
     renderers.push_back(std::move(baseRenderer));
 
     bool isActive = true;
