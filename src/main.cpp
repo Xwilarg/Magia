@@ -9,15 +9,15 @@
 
 int main()
 {
-    Magia::DrawingEngine engine;
-
     std::vector<std::unique_ptr<Magia::ARenderer>> renderers;
     auto baseRenderer = std::make_unique<Magia::BuiltinRenderer>();
 
-    renderers.push_back(std::make_unique<Magia::DebugRenderer>(baseRenderer->GetWindow(), baseRenderer->GetRenderer(), engine));
+    Magia::DrawingEngine engine(baseRenderer->GetRenderer());
+    renderers.push_back(std::make_unique<Magia::DebugRenderer>(baseRenderer->GetWindow(), baseRenderer->GetRenderer()));
     renderers.push_back(std::move(baseRenderer));
 
     bool isActive = true;
+    bool isMousePressed = false;
     while (isActive)
     {
         SDL_Event event;
@@ -34,15 +34,31 @@ int main()
                 isActive = false;
                 break;
 
+            case SDL_MOUSEBUTTONDOWN:
+                isMousePressed = true;
+                break;
+
+            case SDL_MOUSEBUTTONUP:
+                isMousePressed = false;
+                break;
+
             default:
                 break;
             }
+        }
+
+        if (isMousePressed)
+        {
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            engine.Paint(x, y);
         }
 
         for (const auto& r : renderers)
         {
             r->PrepareRender();
         }
+        engine.UpdateScreen();
         for (const auto& r : renderers)
         {
             r->Render();

@@ -6,8 +6,8 @@
 
 namespace Magia
 {
-	DebugRenderer::DebugRenderer(SDL_Window* window, SDL_Renderer* renderer, DrawingEngine& engine)
-        : _renderer(renderer), _engine(engine)
+	DebugRenderer::DebugRenderer(SDL_Window* window, SDL_Renderer* renderer)
+        : _renderer(renderer)
 	{
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
