@@ -59,9 +59,10 @@ namespace Magia
 	{
 		float alpha1 = c1A / 255.0f;
 		float alpha2 = c2A / 255.0f;
-		float val1 = c1V / 255.0f;
-		float val2 = c2V / 255.0f;
-		return (std::pow(std::pow(val1, alpha1) * std::pow(val2, alpha2), 2 / (alpha1 + alpha2))) * 255;
+
+		auto alpha = alpha1 + alpha2 * (1 - alpha1);
+
+		return ((c1V * alpha1) + (c2V * alpha2 * (1 - alpha1))) / (alpha1 + alpha2 * (1 - alpha1));
 	}
 
 	uint32_t DrawingEngine::MixColor(uint32_t brush, uint32_t canvas) const noexcept
@@ -75,7 +76,7 @@ namespace Magia
 		int canvasB = (canvas >> 8) & 0xFF;
 		int canvasA = canvas & 0xFF;
 
-		int r, g, b, a;
+		uint32_t r, g, b, a;
 		/*if (_drawMode == DrawMode::ADDITIVE)
 		{
 			r = (((c1 >> 24) & 0xFF) + ((c2 >> 24) & 0xFF)) / 2;
@@ -93,11 +94,12 @@ namespace Magia
 			r = MixSingleValue(brushR, brushA, canvasR, canvasA);
 			g = MixSingleValue(brushG, brushA, canvasG, canvasA);
 			b = MixSingleValue(brushB, brushA, canvasB, canvasA);
+			//a = MixSingleValue(brushA, brushA, canvasA, canvasA);
 			/*r = ((brushR)+(canvasR)) / 2;
 			g = ((brushG) + (canvasG)) / 2;
 			b = ((brushB) + (canvasB)) / 2;*/
 		}
-		a = brushA;
+		a = 255;
 
 		return (r << 24) + (g << 16) + (b << 8) + a;
 	}
