@@ -6,7 +6,7 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _color(), _penSize(5)
+		: _renderer(renderer), _color(), _penSize(5), _penForce(30), _dev(), _rng(_dev()), _dist(1, 100)
 	{
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
 		_pixels = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
@@ -41,7 +41,10 @@ namespace Magia
 		{
 			for (int xPos = x - static_cast<int>(_penSize / 2.0f); xPos <= x + static_cast<int>(_penSize / 2.0f); xPos++)
 			{
-				if (y >= 0 && x >= 0 && y < WINDOW_HEIGHT && x < CANVAS_WIDTH && std::pow(xPos - x, 2) + std::pow(yPos - y, 2) < _penSize) // TODO: All of that can prob be optimized too
+				// TODO: All of that can prob be optimized too
+				if (yPos >= 0 && xPos >= 0 && yPos < WINDOW_HEIGHT && xPos < CANVAS_WIDTH && // We are within the canvas...
+					std::pow(xPos - x, 2) + std::pow(yPos - y, 2) < _penSize && // ... and we are within the 'circle' shape of the brush...
+					_dist(_rng) < _penForce) // ...and RNG tell us we are within brush force bounds
 				{
 					_pixels[yPos * CANVAS_WIDTH + xPos] = (_color[0] << 24) + (_color[1] << 16) + (_color[2] << 8) + _color[3];
 				}
@@ -70,5 +73,15 @@ namespace Magia
 	void DrawingEngine::SetPenSize(int size) noexcept
 	{
 		_penSize = size;
+	}
+
+	int DrawingEngine::GetPenForce() const noexcept
+	{
+		return _penForce;
+	}
+
+	void DrawingEngine::SetPenForce(int force) noexcept
+	{
+		_penForce = force;
 	}
 }

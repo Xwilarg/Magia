@@ -48,6 +48,10 @@ namespace Magia
         ImGui::SliderInt("Pen size", &penSize, 1, 100);
         _engine.SetPenSize(penSize);
 
+        int penForce = _engine.GetPenForce();
+        ImGui::SliderInt("Pen force", &penForce, 1, 100);
+        _engine.SetPenForce(penForce);
+
         ImGui::End();
 
         ImGui::Render();
