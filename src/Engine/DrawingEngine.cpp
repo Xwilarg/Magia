@@ -11,13 +11,16 @@ namespace Magia
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
 		_pixels = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
 		memset(_pixels, 255, CANVAS_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
+		_currPixels = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
+		memset(_currPixels, 255, CANVAS_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
 
 		SetColor(0, 0, 0, 255);
 	}
 
 	DrawingEngine::~DrawingEngine()
 	{
-		delete _pixels;
+		delete[] _pixels;
+		delete[] _currPixels;
 	}
 
 	void DrawingEngine::UpdateScreen() noexcept
@@ -29,11 +32,16 @@ namespace Magia
 		canvas.h = WINDOW_HEIGHT;
 		canvas.w = CANVAS_WIDTH;
 		SDL_RectToFRect(&canvas, &fCanvas);
-		SDL_UpdateTexture(_framebuffer, &canvas, _pixels, CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
-		SDL_RenderClear(_renderer);
+		auto finalPxls = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
+		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+		{
+			finalPxls[i] = MixColor(_pixels[i], _currPixels[i]);
+		}
+		SDL_UpdateTexture(_framebuffer, &canvas, finalPxls, CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
+		delete[] finalPxls;
+
 		SDL_RenderTexture(_renderer, _framebuffer, &fCanvas, &fCanvas);
-		SDL_RenderPresent(_renderer);
 	}
 
 	bool DrawingEngine::IsPointInsideDrawingCanvas(int x, int y) noexcept
@@ -43,7 +51,26 @@ namespace Magia
 
 	void DrawingEngine::DrawPixel(int x, int y) noexcept
 	{
-		_pixels[y * CANVAS_WIDTH + x] = (_color[0] << 24) + (_color[1] << 16) + (_color[2] << 8) + _color[3];
+		auto prev = _pixels[y * CANVAS_WIDTH + x];
+		_currPixels[y * CANVAS_WIDTH + x] = (_color[0] << 24) + (_color[1] << 16) + (_color[2] << 8) + _color[3];
+	}
+
+	uint32_t DrawingEngine::MixColor(uint32_t c1, uint32_t c2) const noexcept
+	{
+		int r = (((c1 >> 24) & 0xFF) * ((c2 >> 24) & 0xFF)) / 255.0f;
+		int g = (((c1 >> 16) & 0xFF) * ((c2 >> 16) & 0xFF)) / 255.0f;
+		int b = (((c1 >> 8) & 0xFF) * ((c2 >> 8) & 0xFF)) / 255.0f;
+		int a = ((c1 & 0xFF) * (c2 & 0xFF)) / 255.0f;
+
+		return (r << 24) + (g << 16) + (b << 8) + a;
+	}
+
+	void DrawingEngine::ApplyPixels() noexcept
+	{
+		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+		{
+			_pixels[i] = MixColor(_pixels[i], _currPixels[i]);
+		}
 	}
 
 	/// <summary>

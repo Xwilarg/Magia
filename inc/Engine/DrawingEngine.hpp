@@ -13,6 +13,7 @@ namespace Magia
 		~DrawingEngine() noexcept;
 		void UpdateScreen() noexcept;
 		void Paint(int x, int y) noexcept;
+		void ApplyPixels() noexcept;
 
 		const std::array<int, 4>& GetColor() const noexcept;
 		void SetColor(int r, int g, int b, int a) noexcept;
@@ -23,9 +24,11 @@ namespace Magia
 	private:
 		bool IsPointInsideDrawingCanvas(int x, int y) noexcept;
 		void DrawPixel(int x, int y) noexcept;
+		uint32_t MixColor(uint32_t c1, uint32_t c2) const noexcept;
 		SDL_Renderer* _renderer;
 		SDL_Texture* _framebuffer;
 		uint32_t* _pixels;
+		uint32_t* _currPixels;
 
 		std::array<int, 4> _color;
 		int _penSize;

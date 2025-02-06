@@ -44,6 +44,7 @@ int main()
                 break;
 
             case SDL_EVENT_MOUSE_BUTTON_UP:
+                engine.ApplyPixels();
                 isMousePressed = false;
                 break;
 

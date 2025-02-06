@@ -42,11 +42,11 @@ namespace Magia
         _engine.SetColor(static_cast<int>(colors[0] * 255.0f), static_cast<int>(colors[1] * 255.0f), static_cast<int>(colors[2] * 255.0f), static_cast<int>(colors[3] * 255.0f));
 
         int penSize = _engine.GetPenSize();
-        ImGui::SliderInt("Pen size", &penSize, 1, 100);
+        ImGui::SliderInt("Pen size", &penSize, 1, 1000);
         _engine.SetPenSize(penSize);
 
         int penForce = _engine.GetPenForce();
-        ImGui::SliderInt("Pen force", &penForce, 1, 100);
+        ImGui::SliderInt("Pen force", &penForce, 1, 50);
         _engine.SetPenForce(penForce);
 
         ImGui::End();
