@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(Magia)
+set(CMAKE_CXX_STANDARD 20)
 
-SET(CMAKE_CXX_FLAGS "/W4 /EHsc")
+set(CMAKE_CXX_FLAGS "/W4 /EHsc")
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)

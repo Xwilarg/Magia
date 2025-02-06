@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 #include "BuiltinRenderer.hpp"
 #include "DebugRenderer.hpp"
@@ -18,6 +19,8 @@ int main()
 
     bool isActive = true;
     bool isMousePressed = false;
+
+    int lastX, lastY;
     while (isActive)
     {
         SDL_Event event;
@@ -36,9 +39,8 @@ int main()
 
             case SDL_MOUSEBUTTONDOWN:
                 isMousePressed = true;
-                int x, y;
-                SDL_GetMouseState(&x, &y);
-                engine.Paint(x, y);
+                SDL_GetMouseState(&lastX, &lastY);
+                engine.Paint(lastX, lastY);
                 break;
 
             case SDL_MOUSEBUTTONUP:
@@ -48,9 +50,20 @@ int main()
             case SDL_MOUSEMOTION:
                 if (isMousePressed)
                 {
-                    int x, y;
-                    SDL_GetMouseState(&x, &y);
-                    engine.Paint(x, y);
+                    int newX, newY;
+                    SDL_GetMouseState(&newX, &newY);
+
+                    // Intepolate between last pos and current one
+                    int dist = static_cast<int>(std::sqrt(std::pow(newX - lastX, 2) + std::pow(newY - lastY, 2)));
+                    for (int d = 0; d <= dist; d++)
+                    {
+                        int cx = static_cast<int>(std::lerp(lastX, newX, d / static_cast<float>(dist)));
+                        int cy = static_cast<int>(std::lerp(lastY, newY, d / static_cast<float>(dist)));
+                        engine.Paint(cx, cy);
+                    }
+
+                    lastX = newX;
+                    lastY = newY;
                 }
                 break;
 
