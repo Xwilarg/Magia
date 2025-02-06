@@ -37,11 +37,17 @@ namespace Magia
     {
         ImGui::SetNextWindowPos(ImVec2(static_cast<float>(CANVAS_WIDTH), 0.f));
         ImGui::SetNextWindowSize(ImVec2(static_cast<float>(WINDOW_WIDTH - CANVAS_WIDTH), static_cast<float>(WINDOW_HEIGHT)));
-        ImGui::Begin("Pen", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        ImGui::Begin("Pen", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+
         auto& engineC = _engine.GetColor();
         float colors[4] = { engineC[0] / 255.0f, engineC[1] / 255.0f, engineC[2] / 255.0f, engineC[3] / 255.0f };
         ImGui::ColorPicker4("Color", colors, 0, 0);
         _engine.SetColor(static_cast<int>(colors[0] * 255.0f), static_cast<int>(colors[1] * 255.0f), static_cast<int>(colors[2] * 255.0f), static_cast<int>(colors[3] * 255.0f));
+
+        int penSize = _engine.GetPenSize();
+        ImGui::SliderInt("Pen size", &penSize, 1, 100);
+        _engine.SetPenSize(penSize);
+
         ImGui::End();
 
         ImGui::Render();
