@@ -54,17 +54,21 @@ int main()
                     float newX, newY;
                     SDL_GetMouseState(&newX, &newY);
 
-                    // Intepolate between last pos and current one
-                    int dist = static_cast<int>(std::sqrt(std::pow(newX - lastX, 2) + std::pow(newY - lastY, 2)));
-                    for (int d = 0; d <= dist; d++)
+                    if (std::sqrt(std::pow(lastX - newX, 2) + std::pow(lastY - newY, 2)) >= engine.GetDrawDistance())
                     {
-                        int cx = static_cast<int>(std::lerp(lastX, newX, d / static_cast<float>(dist)));
-                        int cy = static_cast<int>(std::lerp(lastY, newY, d / static_cast<float>(dist)));
-                        engine.Paint(cx, cy);
+                        // Intepolate between last pos and current one
+                        int dist = static_cast<int>(std::sqrt(std::pow(newX - lastX, 2) + std::pow(newY - lastY, 2)));
+                        for (int d = 0; d <= dist; d += engine.GetDrawDistance())
+                        {
+                            int cx = static_cast<int>(std::lerp(lastX, newX, d / static_cast<float>(dist)));
+                            int cy = static_cast<int>(std::lerp(lastY, newY, d / static_cast<float>(dist)));
+                            engine.Paint(cx, cy);
+                        }
+
+                        lastX = newX;
+                        lastY = newY;
                     }
 
-                    lastX = newX;
-                    lastY = newY;
                 }
                 break;
 

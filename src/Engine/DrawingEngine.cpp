@@ -6,7 +6,7 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _color(), _penSize(5), _penForce(30), _drawMode(DrawMode::MULTIPLICATIVE), _dev(), _rng(_dev()), _dist(1, 100)
+		: _renderer(renderer), _color(), _penSize(7), _penForce(30), _drawMode(DrawMode::MULTIPLICATIVE), _drawDistance(3), _dev(), _rng(_dev()), _dist(1, 100)
 	{
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
 		_pixels = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
@@ -167,5 +167,15 @@ namespace Magia
 	void DrawingEngine::SetDrawMode(DrawMode mode) noexcept
 	{
 		_drawMode = mode;
+	}
+
+	int DrawingEngine::GetDrawDistance() const noexcept
+	{
+		return _drawDistance;
+	}
+
+	void DrawingEngine::SetDrawDistance(int distance) noexcept
+	{
+		_drawDistance = distance;
 	}
 }

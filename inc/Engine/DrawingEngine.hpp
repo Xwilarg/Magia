@@ -24,6 +24,8 @@ namespace Magia
 		void SetPenForce(int force) noexcept;
 		DrawMode GetDrawMode() const noexcept;
 		void SetDrawMode(DrawMode mode) noexcept;
+		int GetDrawDistance() const noexcept;
+		void SetDrawDistance(int distance) noexcept;
 	private:
 		bool IsPointInsideDrawingCanvas(int x, int y) noexcept;
 		void DrawPixel(int x, int y) noexcept;
@@ -47,6 +49,7 @@ namespace Magia
 		int _penSize;
 		int _penForce; // 100 mean all points are colored, 50 mean half of them are
 		DrawMode _drawMode;
+		int _drawDistance;
 
 		std::random_device _dev;
 		std::mt19937 _rng;

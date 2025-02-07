@@ -49,6 +49,10 @@ namespace Magia
         ImGui::SliderInt("Pen force", &penForce, 1, 50);
         _engine.SetPenForce(penForce);
 
+        int drawDistance = _engine.GetDrawDistance();
+        ImGui::SliderInt("Draw distance", &drawDistance, 1, 50);
+        _engine.SetDrawDistance(drawDistance);
+
         int drawMode = _engine.GetDrawMode();
         const char* drawModes[] = { "Multiplicative" };
         ImGui::Combo("Draw mode", &drawMode, drawModes, IM_ARRAYSIZE(drawModes));
