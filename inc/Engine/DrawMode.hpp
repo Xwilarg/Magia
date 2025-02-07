@@ -4,6 +4,7 @@ namespace Magia
 {
 	enum DrawMode
 	{
-		MULTIPLICATIVE
+		ALPHA,
+		MULTIPLY
 	};
 }

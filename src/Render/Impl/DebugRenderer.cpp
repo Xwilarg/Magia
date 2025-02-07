@@ -54,7 +54,7 @@ namespace Magia
         _engine.SetDrawDistance(drawDistance);
 
         int drawMode = _engine.GetDrawMode();
-        const char* drawModes[] = { "Multiplicative" };
+        const char* drawModes[] = { "Alpha", "Multiply" };
         ImGui::Combo("Draw mode", &drawMode, drawModes, IM_ARRAYSIZE(drawModes));
         _engine.SetDrawMode(static_cast<DrawMode>(drawMode));
 

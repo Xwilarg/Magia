@@ -6,7 +6,7 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _color(), _penSize(7), _penForce(30), _drawMode(DrawMode::MULTIPLICATIVE), _drawDistance(3), _dev(), _rng(_dev()), _dist(1, 100)
+		: _renderer(renderer), _color(), _penSize(7), _penForce(30), _drawMode(DrawMode::ALPHA), _drawDistance(3), _dev(), _rng(_dev()), _dist(1, 100)
 	{
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
 		_pixels = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
@@ -62,7 +62,16 @@ namespace Magia
 
 	int DrawingEngine::MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept
 	{
-		return ((c1V * alpha1) + (c2V * alpha2 * (1 - alpha1))) / (alpha1 + alpha2 * (1 - alpha1));
+		if (_drawMode == DrawMode::ALPHA)
+		{
+			auto den = (alpha1 + alpha2 * (1 - alpha1));
+			if (den == 0)
+			{
+				return 255;
+			}
+			return ((c1V * alpha1) + (c2V * alpha2 * (1 - alpha1))) / den;
+		}
+		return (c1V * c2V) / 255;
 	}
 
 	uint32_t DrawingEngine::MixColor(uint32_t brush, uint32_t canvas) const noexcept
