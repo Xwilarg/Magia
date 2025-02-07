@@ -4,6 +4,7 @@
 #include <random>
 #include "SDL3/SDL.h"
 #include "DrawMode.hpp"
+#include "DrawLayer.hpp"
 
 namespace Magia
 {
@@ -11,7 +12,6 @@ namespace Magia
 	{
 	public:
 		DrawingEngine(SDL_Renderer* renderer);
-		~DrawingEngine() noexcept;
 		void UpdateScreen() noexcept;
 		void Paint(int x, int y) noexcept;
 		void ApplyPixels() noexcept;
@@ -32,18 +32,12 @@ namespace Magia
 		uint32_t MixColor(uint32_t brush, uint32_t canvas) const noexcept;
 		int MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept;
 
-		template<typename T>
-		void SetToValue(T* arr, T value, int size)
-		{
-			for (int i = 0; i < size; i++)
-				arr[i] = value;
-		}
 		SDL_Renderer* _renderer;
 		SDL_Texture* _framebuffer;
-		uint32_t* _pixels;
-		uint32_t* _currPixels;
 
-		uint32_t* _pixelsScreen;
+		DrawLayer _pixels;
+		DrawLayer _currPixels;
+		DrawLayer _pixelScreen;
 
 		std::array<int, 4> _color;
 		int _penSize;

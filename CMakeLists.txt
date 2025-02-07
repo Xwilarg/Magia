@@ -13,6 +13,6 @@ add_executable(Magia
 "src/main.cpp"
 "src/Render/Impl/BuiltinRenderer.cpp"
 "src/Render/Impl/DebugRenderer.cpp"
- "src/Engine/DrawingEngine.cpp")
+ "src/Engine/DrawingEngine.cpp" "src/Engine/DrawLayer.cpp")
 
 target_link_libraries(Magia PRIVATE SDL3::SDL3 imgui::imgui)

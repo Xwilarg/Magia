@@ -6,23 +6,13 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _color(), _penSize(7), _penForce(30), _drawMode(DrawMode::MULTIPLICATIVE), _drawDistance(3), _dev(), _rng(_dev()), _dist(1, 100)
+		: _renderer(renderer), _color(), _penSize(7), _penForce(30), _drawMode(DrawMode::MULTIPLICATIVE), _drawDistance(3), _dev(), _rng(_dev()), _dist(1, 100), _pixels(), _currPixels(), _pixelScreen()
 	{
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
-		_pixels = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
-		SetToValue(_pixels, TRANSPARENT_PIXEL, CANVAS_WIDTH * WINDOW_HEIGHT);
-		_currPixels = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
-		SetToValue(_currPixels, TRANSPARENT_PIXEL, CANVAS_WIDTH * WINDOW_HEIGHT);
-		_pixelsScreen = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
+		_pixels.Clear(TRANSPARENT_PIXEL);
+		_currPixels.Clear(TRANSPARENT_PIXEL);
 
 		SetColor(0, 0, 0, 255);
-	}
-
-	DrawingEngine::~DrawingEngine()
-	{
-		delete[] _pixels;
-		delete[] _currPixels;
-		delete[] _pixelsScreen;
 	}
 
 	void DrawingEngine::UpdateScreen() noexcept
@@ -35,16 +25,16 @@ namespace Magia
 		canvas.w = CANVAS_WIDTH;
 		SDL_RectToFRect(&canvas, &fCanvas);
 
-		SetToValue(_pixelsScreen, WHITE_PIXEL, CANVAS_WIDTH * WINDOW_HEIGHT);
+		_pixelScreen.Clear(WHITE_PIXEL);
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			_pixelsScreen[i] = MixColor(_pixels[i], _pixelsScreen[i]);
+			_pixelScreen.Set(i, MixColor(_pixels.Get(i), _pixelScreen.Get(i)));
 		}
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			_pixelsScreen[i] = MixColor(_currPixels[i], _pixelsScreen[i]);
+			_pixelScreen.Set(i, MixColor(_currPixels.Get(i), _pixelScreen.Get(i)));
 		}
-		SDL_UpdateTexture(_framebuffer, &canvas, _pixelsScreen, CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
+		SDL_UpdateTexture(_framebuffer, &canvas, _pixelScreen.Get(), CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
 		SDL_RenderTexture(_renderer, _framebuffer, &fCanvas, &fCanvas);
 	}
@@ -56,8 +46,8 @@ namespace Magia
 
 	void DrawingEngine::DrawPixel(int x, int y) noexcept
 	{
-		auto prev = _pixels[y * CANVAS_WIDTH + x];
-		_currPixels[y * CANVAS_WIDTH + x] = (_color[0] << 24) + (_color[1] << 16) + (_color[2] << 8) + _color[3];
+		auto prev = _pixels.Get(y * CANVAS_WIDTH + x);
+		_currPixels.Set(y * CANVAS_WIDTH + x,(_color[0] << 24) + (_color[1] << 16) + (_color[2] << 8) + _color[3]);
 	}
 
 	int DrawingEngine::MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept
@@ -96,9 +86,9 @@ namespace Magia
 	{
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			_pixels[i] = MixColor(_currPixels[i], _pixels[i]);
+			_pixels.Set(i, MixColor(_currPixels.Get(i), _pixels.Get(i)));
 		}
-		SetToValue(_currPixels, TRANSPARENT_PIXEL, CANVAS_WIDTH * WINDOW_HEIGHT);
+		_currPixels.Clear(TRANSPARENT_PIXEL);
 	}
 
 	/// <summary>
