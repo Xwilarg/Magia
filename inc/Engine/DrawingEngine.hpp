@@ -28,15 +28,16 @@ namespace Magia
 		void SetDrawDistance(int distance) noexcept;
 	private:
 		bool IsPointInsideDrawingCanvas(int x, int y) noexcept;
-		void DrawPixel(int x, int y) noexcept;
 		uint32_t MixColor(uint32_t brush, uint32_t canvas) const noexcept;
 		int MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept;
+		void AddNewLayer() noexcept;
 
 		SDL_Renderer* _renderer;
 		SDL_Texture* _framebuffer;
 
 		DrawLayer _pixels;
-		DrawLayer _currPixels;
+		std::vector<std::shared_ptr<DrawLayer>> _layers;
+		int _selectedLayer;
 		DrawLayer _pixelScreen;
 
 		std::array<int, 4> _color;

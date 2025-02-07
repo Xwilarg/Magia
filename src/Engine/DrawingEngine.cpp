@@ -6,11 +6,12 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _color(), _penSize(7), _penForce(30), _drawMode(DrawMode::MULTIPLICATIVE), _drawDistance(3), _dev(), _rng(_dev()), _dist(1, 100), _pixels(), _currPixels(), _pixelScreen()
+		: _renderer(renderer), _color(), _penSize(7), _penForce(30), _drawMode(DrawMode::MULTIPLICATIVE), _drawDistance(3), _dev(), _rng(_dev()), _dist(1, 100), _pixels(), _layers(), _selectedLayer(), _pixelScreen()
 	{
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
 		_pixels.Clear(TRANSPARENT_PIXEL);
-		_currPixels.Clear(TRANSPARENT_PIXEL);
+
+		AddNewLayer();
 
 		SetColor(0, 0, 0, 255);
 	}
@@ -30,24 +31,27 @@ namespace Magia
 		{
 			_pixelScreen.Set(i, MixColor(_pixels.Get(i), _pixelScreen.Get(i)));
 		}
+		auto& layer = _layers[_selectedLayer];
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			_pixelScreen.Set(i, MixColor(_currPixels.Get(i), _pixelScreen.Get(i)));
+			_pixelScreen.Set(i, MixColor(layer->Get(i), _pixelScreen.Get(i)));
 		}
 		SDL_UpdateTexture(_framebuffer, &canvas, _pixelScreen.Get(), CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
 		SDL_RenderTexture(_renderer, _framebuffer, &fCanvas, &fCanvas);
 	}
 
+	void DrawingEngine::AddNewLayer() noexcept
+	{
+		auto newLayer = std::make_shared<DrawLayer>();
+		newLayer->Clear(TRANSPARENT_PIXEL);
+		_layers.push_back(newLayer);
+		_selectedLayer = _layers.size() - 1;
+	}
+
 	bool DrawingEngine::IsPointInsideDrawingCanvas(int x, int y) noexcept
 	{
 		return y >= 0 && x >= 0 && y < WINDOW_HEIGHT && x < CANVAS_WIDTH && _dist(_rng) < _penForce;
-	}
-
-	void DrawingEngine::DrawPixel(int x, int y) noexcept
-	{
-		auto prev = _pixels.Get(y * CANVAS_WIDTH + x);
-		_currPixels.Set(y * CANVAS_WIDTH + x,(_color[0] << 24) + (_color[1] << 16) + (_color[2] << 8) + _color[3]);
 	}
 
 	int DrawingEngine::MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept
@@ -84,11 +88,12 @@ namespace Magia
 
 	void DrawingEngine::ApplyPixels() noexcept
 	{
+		auto& layer = _layers[_selectedLayer];
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			_pixels.Set(i, MixColor(_currPixels.Get(i), _pixels.Get(i)));
+			_pixels.Set(i, MixColor(layer->Get(i), _pixels.Get(i)));
 		}
-		_currPixels.Clear(TRANSPARENT_PIXEL);
+		layer->Clear(TRANSPARENT_PIXEL);
 	}
 
 	/// <summary>
@@ -96,6 +101,7 @@ namespace Magia
 	/// </summary>
 	void DrawingEngine::Paint(int x, int y) noexcept
 	{
+		auto& layer = _layers[_selectedLayer];
 		for (int yPos = y; yPos <= y + static_cast<int>(_penSize / 2.0f); yPos++)
 		{
 			for (int xPos = x; xPos <= x + static_cast<int>(_penSize / 2.0f); xPos++)
@@ -107,10 +113,10 @@ namespace Magia
 					int xSym = x - (xPos - x);
 					int ySym = y - (yPos - y);
 
-					if (IsPointInsideDrawingCanvas(xPos, yPos)) DrawPixel(xPos, yPos);
-					if (IsPointInsideDrawingCanvas(xSym, yPos)) DrawPixel(xSym, yPos);
-					if (IsPointInsideDrawingCanvas(xPos, ySym)) DrawPixel(xPos, ySym);
-					if (IsPointInsideDrawingCanvas(xSym, ySym)) DrawPixel(xSym, ySym);
+					if (IsPointInsideDrawingCanvas(xPos, yPos)) layer->Draw(xPos, yPos, _color[0], _color[1], _color[2], _color[3]);
+					if (IsPointInsideDrawingCanvas(xSym, yPos)) layer->Draw(xSym, yPos, _color[0], _color[1], _color[2], _color[3]);
+					if (IsPointInsideDrawingCanvas(xPos, ySym)) layer->Draw(xPos, ySym, _color[0], _color[1], _color[2], _color[3]);
+					if (IsPointInsideDrawingCanvas(xSym, ySym)) layer->Draw(xSym, ySym, _color[0], _color[1], _color[2], _color[3]);
 				}
 			}
 		}

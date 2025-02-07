@@ -16,6 +16,11 @@ namespace Magia
 		}
 	}
 
+	void DrawLayer::Draw(int x, int y, int r, int g, int b, int a)
+	{
+		Set(y * CANVAS_WIDTH + x, (r << 24) + (g << 16) + (b << 8) + a);
+	}
+
 	uint32_t* DrawLayer::Get() noexcept
 	{
 		return _pixels;
