@@ -21,7 +21,7 @@ namespace Magia
 		return _pixels;
 	}
 
-	const uint32_t& DrawLayer::Get(int i) const noexcept
+	uint32_t DrawLayer::Get(int i) const noexcept
 	{
 		return _pixels[i];
 	}

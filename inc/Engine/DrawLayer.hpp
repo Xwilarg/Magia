@@ -10,7 +10,7 @@ namespace Magia
 		DrawLayer() noexcept;
 		void Clear(uint32_t color);
 		uint32_t* Get() noexcept;
-		const uint32_t& Get(int i) const noexcept;
+		uint32_t Get(int i) const noexcept;
 		void Set(int i, uint32_t value) noexcept;
 
 	private:
