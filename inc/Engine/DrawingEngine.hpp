@@ -28,7 +28,7 @@ namespace Magia
 		bool IsPointInsideDrawingCanvas(int x, int y) noexcept;
 		void DrawPixel(int x, int y) noexcept;
 		uint32_t MixColor(uint32_t brush, uint32_t canvas) const noexcept;
-		int MixSingleValue(int c1V, int c1A, int c2V, int c2A) const noexcept;
+		int MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept;
 
 		template<typename T>
 		void SetToValue(T* arr, T value, int size)

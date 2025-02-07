@@ -60,13 +60,8 @@ namespace Magia
 		_currPixels[y * CANVAS_WIDTH + x] = (_color[0] << 24) + (_color[1] << 16) + (_color[2] << 8) + _color[3];
 	}
 
-	int DrawingEngine::MixSingleValue(int c1V, int c1A, int c2V, int c2A) const noexcept
+	int DrawingEngine::MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept
 	{
-		float alpha1 = c1A / 255.0f;
-		float alpha2 = c2A / 255.0f;
-
-		auto alpha = alpha1 + alpha2 * (1 - alpha1);
-
 		return ((c1V * alpha1) + (c2V * alpha2 * (1 - alpha1))) / (alpha1 + alpha2 * (1 - alpha1));
 	}
 
@@ -83,10 +78,16 @@ namespace Magia
 
 		uint32_t r, g, b, a;
 
-		r = MixSingleValue(brushR, brushA, canvasR, canvasA);
-		g = MixSingleValue(brushG, brushA, canvasG, canvasA);
-		b = MixSingleValue(brushB, brushA, canvasB, canvasA);
-		a = 255; // TODO: Need to be calculated properly
+
+		float alpha1 = brushA / 255.0f;
+		float alpha2 = canvasA / 255.0f;
+		auto alpha = alpha1 + alpha2 * (1 - alpha1);
+
+		r = MixSingleValue(brushR, canvasR, alpha1, alpha2, alpha);
+		g = MixSingleValue(brushG, canvasG, alpha1, alpha2, alpha);
+		b = MixSingleValue(brushB, canvasB, alpha1, alpha2, alpha);
+
+		a = alpha * 255;
 
 		return (r << 24) + (g << 16) + (b << 8) + a;
 	}
