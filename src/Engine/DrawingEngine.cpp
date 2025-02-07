@@ -82,28 +82,10 @@ namespace Magia
 		int canvasA = canvas & 0xFF;
 
 		uint32_t r, g, b, a;
-		/*if (_drawMode == DrawMode::ADDITIVE)
-		{
-			r = (((c1 >> 24) & 0xFF) + ((c2 >> 24) & 0xFF)) / 2;
-			g = (((c1 >> 16) & 0xFF) + ((c2 >> 16) & 0xFF)) / 2;
-			b = (((c1 >> 8) & 0xFF) + ((c2 >> 8) & 0xFF)) / 2;
-			a = ((c1 & 0xFF) + (c2 & 0xFF)) / 2;
-		}
-		else*/
-		{
-			/*r = (((brush >> 24) & 0xFF) * ((canvas >> 24) & 0xFF)) / 255;
-			g = (((brush >> 16) & 0xFF) * ((canvas >> 16) & 0xFF)) / 255;
-			b = (((brush >> 8) & 0xFF) * ((canvas >> 8) & 0xFF)) / 255;
-			a = brush & 0xFF;*/
 
-			r = MixSingleValue(brushR, brushA, canvasR, canvasA);
-			g = MixSingleValue(brushG, brushA, canvasG, canvasA);
-			b = MixSingleValue(brushB, brushA, canvasB, canvasA);
-			//a = MixSingleValue(brushA, brushA, canvasA, canvasA);
-			/*r = ((brushR)+(canvasR)) / 2;
-			g = ((brushG) + (canvasG)) / 2;
-			b = ((brushB) + (canvasB)) / 2;*/
-		}
+		r = MixSingleValue(brushR, brushA, canvasR, canvasA);
+		g = MixSingleValue(brushG, brushA, canvasG, canvasA);
+		b = MixSingleValue(brushB, brushA, canvasB, canvasA);
 		a = 255; // TODO: Need to be calculated properly
 
 		return (r << 24) + (g << 16) + (b << 8) + a;
