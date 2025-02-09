@@ -114,6 +114,8 @@ namespace Magia
 	/// </summary>
 	void DrawingEngine::Paint(int x, int y) noexcept
 	{
+		if (!_layers[_selectedLayer]->GetActive()) return;
+
 		for (int yPos = y; yPos <= y + static_cast<int>(_penSize / 2.0f); yPos++)
 		{
 			for (int xPos = x; xPos <= x + static_cast<int>(_penSize / 2.0f); xPos++)
