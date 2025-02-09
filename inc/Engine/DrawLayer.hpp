@@ -15,10 +15,13 @@ namespace Magia
 		uint32_t Get(int i) const noexcept;
 		void Set(int i, uint32_t value) noexcept;
 		char* GetName() noexcept;
+		void SetActive(bool value) noexcept;
+		bool GetActive() const noexcept;
 
 	private:
 		uint32_t* _pixels;
 		uint32_t _defaultColor;
 		char* _name; // TODO: Turn into a std::string later (need to fight imgui first)
+		bool _isActive;
 	};
 }

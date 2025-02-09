@@ -1,4 +1,6 @@
 #include <cmath>
+#include <ranges>
+#include <iterator>
 
 #include "DrawingEngine.hpp"
 #include "config.hpp"
@@ -6,10 +8,10 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _color(), _penSize(7), _penForce(30), _drawMode(DrawMode::MULTIPLICATIVE), _drawDistance(3), _dev(), _rng(_dev()), _dist(1, 100), _pixels(), _layers(), _selectedLayer(), _pixelScreen()
+		: _renderer(renderer), _color(), _penSize(7), _penForce(30), _drawMode(DrawMode::MULTIPLICATIVE), _drawDistance(3), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen()
 	{
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
-		_pixels.Clear(TRANSPARENT_PIXEL);
+		_brushPixels.Clear(TRANSPARENT_PIXEL);
 
 		AddNewLayer();
 
@@ -29,12 +31,14 @@ namespace Magia
 		_pixelScreen.Clear(WHITE_PIXEL);
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			_pixelScreen.Set(i, MixColor(_pixels.Get(i), _pixelScreen.Get(i)));
+			_pixelScreen.Set(i, MixColor(_brushPixels.Get(i), _pixelScreen.Get(i)));
 		}
-		auto& layer = _layers[_selectedLayer];
-		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+		for (const auto& layer : _layers | std::views::filter([](auto l) { return l->GetActive(); }))
 		{
-			_pixelScreen.Set(i, MixColor(layer->Get(i), _pixelScreen.Get(i)));
+			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+			{
+				_pixelScreen.Set(i, MixColor(layer->Get(i), _pixelScreen.Get(i)));
+			}
 		}
 		SDL_UpdateTexture(_framebuffer, &canvas, _pixelScreen.Get(), CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
@@ -91,9 +95,9 @@ namespace Magia
 		auto& layer = _layers[_selectedLayer];
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			_pixels.Set(i, MixColor(layer->Get(i), _pixels.Get(i)));
+			layer->Set(i, MixColor(_brushPixels.Get(i), layer->Get(i)));
 		}
-		layer->Clear(TRANSPARENT_PIXEL);
+		_brushPixels.Clear(TRANSPARENT_PIXEL);
 	}
 
 	/// <summary>
@@ -101,7 +105,6 @@ namespace Magia
 	/// </summary>
 	void DrawingEngine::Paint(int x, int y) noexcept
 	{
-		auto& layer = _layers[_selectedLayer];
 		for (int yPos = y; yPos <= y + static_cast<int>(_penSize / 2.0f); yPos++)
 		{
 			for (int xPos = x; xPos <= x + static_cast<int>(_penSize / 2.0f); xPos++)
@@ -113,10 +116,10 @@ namespace Magia
 					int xSym = x - (xPos - x);
 					int ySym = y - (yPos - y);
 
-					if (IsPointInsideDrawingCanvas(xPos, yPos)) layer->Draw(xPos, yPos, _color[0], _color[1], _color[2], _color[3]);
-					if (IsPointInsideDrawingCanvas(xSym, yPos)) layer->Draw(xSym, yPos, _color[0], _color[1], _color[2], _color[3]);
-					if (IsPointInsideDrawingCanvas(xPos, ySym)) layer->Draw(xPos, ySym, _color[0], _color[1], _color[2], _color[3]);
-					if (IsPointInsideDrawingCanvas(xSym, ySym)) layer->Draw(xSym, ySym, _color[0], _color[1], _color[2], _color[3]);
+					if (IsPointInsideDrawingCanvas(xPos, yPos)) _brushPixels.Draw(xPos, yPos, _color[0], _color[1], _color[2], _color[3]);
+					if (IsPointInsideDrawingCanvas(xSym, yPos)) _brushPixels.Draw(xSym, yPos, _color[0], _color[1], _color[2], _color[3]);
+					if (IsPointInsideDrawingCanvas(xPos, ySym)) _brushPixels.Draw(xPos, ySym, _color[0], _color[1], _color[2], _color[3]);
+					if (IsPointInsideDrawingCanvas(xSym, ySym)) _brushPixels.Draw(xSym, ySym, _color[0], _color[1], _color[2], _color[3]);
 				}
 			}
 		}

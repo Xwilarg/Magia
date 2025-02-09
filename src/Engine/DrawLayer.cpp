@@ -51,4 +51,14 @@ namespace Magia
 	{
 		return _name;
 	}
+
+	void DrawLayer::SetActive(bool value) noexcept
+	{
+		_isActive = value;
+	}
+
+	bool DrawLayer::GetActive() const noexcept
+	{
+		return _isActive;
+	}
 }

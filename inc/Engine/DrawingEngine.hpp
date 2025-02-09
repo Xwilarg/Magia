@@ -38,7 +38,7 @@ namespace Magia
 		SDL_Renderer* _renderer;
 		SDL_Texture* _framebuffer;
 
-		DrawLayer _pixels;
+		DrawLayer _brushPixels;
 		std::vector<std::shared_ptr<DrawLayer>> _layers;
 		int _selectedLayer;
 		DrawLayer _pixelScreen;

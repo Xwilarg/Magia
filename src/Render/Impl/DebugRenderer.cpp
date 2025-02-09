@@ -36,6 +36,7 @@ namespace Magia
         ImGui::SetNextWindowSize(ImVec2(static_cast<float>(WINDOW_WIDTH - CANVAS_WIDTH), static_cast<float>(WINDOW_HEIGHT)));
         ImGui::Begin("Pen", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
 
+        ImGui::SeparatorText("Pen");
         auto& engineC = _engine.GetColor();
         float colors[4] = { engineC[0] / 255.0f, engineC[1] / 255.0f, engineC[2] / 255.0f, engineC[3] / 255.0f };
         ImGui::ColorPicker4("Color", colors, 0, 0);
@@ -65,9 +66,9 @@ namespace Magia
         }
         if (ImGui::BeginTable("tableLayers", 3))
         {
+            ImGui::TableSetupColumn("col1", ImGuiTableColumnFlags_WidthFixed);
             ImGui::TableSetupColumn("col2", ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn("col1", ImGuiTableColumnFlags_WidthFixed, 200.0f);
-            ImGui::TableSetupColumn("col3", ImGuiTableColumnFlags_WidthFixed);
+            ImGui::TableSetupColumn("col3", ImGuiTableColumnFlags_WidthFixed, 200.0f);
 
             int currentLayer = _engine.GetSelectedLayerIndex();
             int row = 0;
@@ -77,13 +78,19 @@ namespace Magia
                 ImGui::TableNextRow();
 
                 ImGui::TableSetColumnIndex(0);
+                bool isActive = layer->GetActive();
+                ImGui::Checkbox("##active", &isActive);
+                layer->SetActive(isActive);
+
+                ImGui::TableSetColumnIndex(1);
                 if (row == currentLayer) ImGui::BeginDisabled();
                 if (ImGui::Button("Go"))
                 {
                     _engine.SetSelectedLayerIndex(row);
                 }
                 if (row == currentLayer) ImGui::EndDisabled();
-                ImGui::TableSetColumnIndex(1);
+
+                ImGui::TableSetColumnIndex(2);
                 ImGui::InputText("##name", layer->GetName(), 50);
 
                 row++;
