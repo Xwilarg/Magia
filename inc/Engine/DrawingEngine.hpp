@@ -31,6 +31,7 @@ namespace Magia
 		void RemoveLayer(int index) noexcept;
 		int GetSelectedLayerIndex() const noexcept;
 		void SetSelectedLayerIndex(int target) noexcept;
+		uint32_t* GetFinalFramebuffer() noexcept;
 	private:
 		bool IsPointInsideDrawingCanvas(int x, int y) noexcept;
 		uint32_t MixColor(uint32_t brush, uint32_t canvas) const noexcept;

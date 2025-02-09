@@ -1,4 +1,5 @@
 #include "DebugRenderer.hpp"
+#include "PngExporter.hpp"
 
 #include "config.hpp"
 #include "imgui.h"
@@ -107,6 +108,13 @@ namespace Magia
                 ImGui::PopID();
             }
             ImGui::EndTable();
+        }
+
+        ImGui::SeparatorText("Export");
+        if (ImGui::Button("Export to PNG"))
+        {
+            PngExporter expoter;
+            expoter.Export("test.png", CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetFinalFramebuffer());
         }
 
         ImGui::End();

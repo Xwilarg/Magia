@@ -20,7 +20,7 @@ namespace Magia
 
 	void DrawingEngine::UpdateScreen() noexcept
 	{
-		SDL_Rect canvas;
+		SDL_Rect canvas = {};
 		SDL_FRect fCanvas;
 		canvas.x = 0;
 		canvas.y = 0;
@@ -43,6 +43,11 @@ namespace Magia
 		SDL_UpdateTexture(_framebuffer, &canvas, _pixelScreen.Get(), CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
 		SDL_RenderTexture(_renderer, _framebuffer, &fCanvas, &fCanvas);
+	}
+
+	uint32_t* DrawingEngine::GetFinalFramebuffer() noexcept
+	{
+		return _pixelScreen.Get();
 	}
 
 	void DrawingEngine::AddNewLayer() noexcept

@@ -7,6 +7,7 @@
         "sdl3-renderer-binding"
       ]
     },
-    "sdl3"
+    "sdl3",
+    "libpng"
   ]
 }
