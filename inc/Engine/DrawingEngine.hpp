@@ -26,11 +26,14 @@ namespace Magia
 		void SetDrawMode(DrawMode mode) noexcept;
 		int GetDrawDistance() const noexcept;
 		void SetDrawDistance(int distance) noexcept;
+		std::vector<std::shared_ptr<DrawLayer>>& GetLayers() noexcept;
+		void AddNewLayer() noexcept;
+		int GetSelectedLayerIndex() const noexcept;
+		void SetSelectedLayerIndex(int target) noexcept;
 	private:
 		bool IsPointInsideDrawingCanvas(int x, int y) noexcept;
 		uint32_t MixColor(uint32_t brush, uint32_t canvas) const noexcept;
 		int MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept;
-		void AddNewLayer() noexcept;
 
 		SDL_Renderer* _renderer;
 		SDL_Texture* _framebuffer;

@@ -1,3 +1,6 @@
+#include <cstdlib>
+#include <cstring>
+
 #include "DrawLayer.hpp"
 #include "config.hpp"
 
@@ -6,6 +9,14 @@ namespace Magia
 	DrawLayer::DrawLayer() noexcept
 	{
 		_pixels = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
+		_name = new char[50];
+		strcpy(_name, "Default");
+	}
+
+	DrawLayer::~DrawLayer() noexcept
+	{
+		delete[] _pixels;
+		delete[] _name;
 	}
 
 	void DrawLayer::Clear(uint32_t color)
@@ -34,5 +45,10 @@ namespace Magia
 	void DrawLayer::Set(int i, uint32_t value) noexcept
 	{
 		_pixels[i] = value;
+	}
+
+	char* DrawLayer::GetName() noexcept
+	{
+		return _name;
 	}
 }

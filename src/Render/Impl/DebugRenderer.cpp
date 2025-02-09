@@ -58,6 +58,40 @@ namespace Magia
         ImGui::Combo("Draw mode", &drawMode, drawModes, IM_ARRAYSIZE(drawModes));
         _engine.SetDrawMode(static_cast<DrawMode>(drawMode));
 
+        ImGui::SeparatorText("Layers");
+        if (ImGui::Button("Add"))
+        {
+            _engine.AddNewLayer();
+        }
+        if (ImGui::BeginTable("tableLayers", 3))
+        {
+            ImGui::TableSetupColumn("col2", ImGuiTableColumnFlags_WidthFixed);
+            ImGui::TableSetupColumn("col1", ImGuiTableColumnFlags_WidthFixed, 200.0f);
+            ImGui::TableSetupColumn("col3", ImGuiTableColumnFlags_WidthFixed);
+
+            int currentLayer = _engine.GetSelectedLayerIndex();
+            int row = 0;
+            for (const auto& layer : _engine.GetLayers())
+            {
+                ImGui::PushID(row);
+                ImGui::TableNextRow();
+
+                ImGui::TableSetColumnIndex(0);
+                if (row == currentLayer) ImGui::BeginDisabled();
+                if (ImGui::Button("Go"))
+                {
+                    _engine.SetSelectedLayerIndex(row);
+                }
+                if (row == currentLayer) ImGui::EndDisabled();
+                ImGui::TableSetColumnIndex(1);
+                ImGui::InputText("##name", layer->GetName(), 50);
+
+                row++;
+                ImGui::PopID();
+            }
+            ImGui::EndTable();
+        }
+
         ImGui::End();
 
         ImGui::Render();

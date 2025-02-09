@@ -174,4 +174,19 @@ namespace Magia
 	{
 		_drawDistance = distance;
 	}
+
+	std::vector<std::shared_ptr<DrawLayer>>& DrawingEngine::GetLayers() noexcept
+	{
+		return _layers;
+	}
+
+	void DrawingEngine::SetSelectedLayerIndex(int target) noexcept
+	{
+		_selectedLayer = target;
+	}
+
+	int DrawingEngine::GetSelectedLayerIndex() const noexcept
+	{
+		return _selectedLayer;
+	}
 }
