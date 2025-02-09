@@ -95,12 +95,13 @@ namespace Magia
                 ImGui::InputText("##name", layer->GetName(), 50);
 
                 ImGui::TableSetColumnIndex(3);
-                if (row == 0) ImGui::BeginDisabled();
+                auto layerCount = _engine.GetLayers().size();
+                if (layerCount == 1) ImGui::BeginDisabled();
                 if (ImGui::Button("Del"))
                 {
                     _engine.RemoveLayer(row);
                 }
-                if (row == 0) ImGui::EndDisabled();
+                if (layerCount == 1) ImGui::EndDisabled();
 
                 row++;
                 ImGui::PopID();
