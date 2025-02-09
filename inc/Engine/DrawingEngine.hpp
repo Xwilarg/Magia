@@ -28,6 +28,7 @@ namespace Magia
 		void SetDrawDistance(int distance) noexcept;
 		std::vector<std::shared_ptr<DrawLayer>>& GetLayers() noexcept;
 		void AddNewLayer() noexcept;
+		void RemoveLayer(int index) noexcept;
 		int GetSelectedLayerIndex() const noexcept;
 		void SetSelectedLayerIndex(int target) noexcept;
 	private:

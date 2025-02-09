@@ -53,6 +53,15 @@ namespace Magia
 		_selectedLayer = _layers.size() - 1;
 	}
 
+	void DrawingEngine::RemoveLayer(int index) noexcept
+	{
+		_layers.erase(_layers.begin() + index);
+		if (_selectedLayer > _layers.size() - 1)
+		{
+			_selectedLayer = _layers.size() - 1;
+		}
+	}
+
 	bool DrawingEngine::IsPointInsideDrawingCanvas(int x, int y) noexcept
 	{
 		return y >= 0 && x >= 0 && y < WINDOW_HEIGHT && x < CANVAS_WIDTH && _dist(_rng) < _penForce;

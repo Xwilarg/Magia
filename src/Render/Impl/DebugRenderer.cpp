@@ -64,11 +64,12 @@ namespace Magia
         {
             _engine.AddNewLayer();
         }
-        if (ImGui::BeginTable("tableLayers", 3))
+        if (ImGui::BeginTable("tableLayers", 4))
         {
             ImGui::TableSetupColumn("col1", ImGuiTableColumnFlags_WidthFixed);
             ImGui::TableSetupColumn("col2", ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn("col3", ImGuiTableColumnFlags_WidthFixed, 200.0f);
+            ImGui::TableSetupColumn("col3", ImGuiTableColumnFlags_WidthFixed, 100.0f);
+            ImGui::TableSetupColumn("col4", ImGuiTableColumnFlags_WidthFixed);
 
             int currentLayer = _engine.GetSelectedLayerIndex();
             int row = 0;
@@ -92,6 +93,14 @@ namespace Magia
 
                 ImGui::TableSetColumnIndex(2);
                 ImGui::InputText("##name", layer->GetName(), 50);
+
+                ImGui::TableSetColumnIndex(3);
+                if (row == 0) ImGui::BeginDisabled();
+                if (ImGui::Button("Del"))
+                {
+                    _engine.RemoveLayer(row);
+                }
+                if (row == 0) ImGui::EndDisabled();
 
                 row++;
                 ImGui::PopID();
