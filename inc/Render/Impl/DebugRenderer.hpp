@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include "SDL3/SDL.h"
 #include "ARenderer.hpp"
 #include "DrawingEngine.hpp"
@@ -17,5 +18,9 @@ namespace Magia
 	private:
 		SDL_Renderer* _renderer;
 		DrawingEngine& _engine;
+
+		int _frameCount;
+		int _lastCount;
+		std::chrono::steady_clock::time_point _clock;
 	};
 }

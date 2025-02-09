@@ -1,3 +1,5 @@
+#include <string>
+
 #include "DebugRenderer.hpp"
 #include "PngExporter.hpp"
 
@@ -9,7 +11,7 @@
 namespace Magia
 {
 	DebugRenderer::DebugRenderer(SDL_Window* window, SDL_Renderer* renderer, DrawingEngine& engine)
-        : _renderer(renderer), _engine(engine)
+        : _renderer(renderer), _engine(engine), _frameCount(0), _lastCount(0), _clock(std::chrono::steady_clock::now())
 	{
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -116,6 +118,22 @@ namespace Magia
             PngExporter expoter;
             expoter.Export("test.png", CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetFinalFramebuffer());
         }
+
+        ImGui::SeparatorText("Debug");
+        ImGui::Text("ImGui Framerate");
+        ImGui::SameLine();
+        ImGui::Text(std::to_string(ImGui::GetIO().Framerate).c_str());
+
+        _frameCount++;
+        if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - _clock).count() > 0)
+        {
+            _lastCount = _frameCount;
+            _frameCount = 0;
+            _clock = std::chrono::steady_clock::now();
+        }
+        ImGui::Text("SDL Framerate");
+        ImGui::SameLine();
+        ImGui::Text(std::to_string(_lastCount).c_str());
 
         ImGui::End();
 
