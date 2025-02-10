@@ -5,6 +5,7 @@
 #include "DebugRenderer.hpp"
 #include "DrawingEngine.hpp"
 #include "InterpolationManager.hpp"
+#include "config.hpp"
 
 #undef main
 
@@ -44,10 +45,14 @@ int main()
                 if (!engine.GetCanUseMouse()) continue;
                 [[fallthrough]];
             case SDL_EVENT_PEN_DOWN:
-                isMousePressed = true;
                 x = event.type == SDL_EVENT_MOUSE_BUTTON_DOWN ? event.button.x : event.pbutton.x;
                 y = event.type == SDL_EVENT_PEN_DOWN ? event.button.y : event.pbutton.y;
-                interManager.AddPoint(x, y);
+
+                if (x >= 0.0f && x <= CANVAS_WIDTH && y >= 0.0f && y <= WINDOW_HEIGHT) // We don't draw if we clicked outside the window
+                {
+                    isMousePressed = true;
+                    interManager.AddPoint(x, y);
+                }
                 break;
 
             case SDL_EVENT_MOUSE_BUTTON_UP:
