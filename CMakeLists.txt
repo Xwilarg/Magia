@@ -15,6 +15,6 @@ add_executable(Magia
 "src/Render/Impl/BuiltinRenderer.cpp"
 "src/Render/Impl/DebugRenderer.cpp"
 "src/Engine/DrawingEngine.cpp"
-"src/Engine/DrawLayer.cpp" "src/Export/PngExporter.cpp")
+"src/Engine/DrawLayer.cpp" "src/Export/PngExporter.cpp" "src/Engine/InterpolationManager.cpp")
 
 target_link_libraries(Magia PRIVATE SDL3::SDL3 imgui::imgui PNG::PNG)

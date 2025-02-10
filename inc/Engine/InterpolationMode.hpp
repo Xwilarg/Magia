@@ -2,6 +2,7 @@ namespace Magia
 {
 	enum InterpolationMode
 	{
-		NONE
+		NONE,
+		CENTRIPETAL_CATMULL_ROM
 	};
 }

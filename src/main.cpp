@@ -4,6 +4,7 @@
 #include "BuiltinRenderer.hpp"
 #include "DebugRenderer.hpp"
 #include "DrawingEngine.hpp"
+#include "InterpolationManager.hpp"
 
 #undef main
 
@@ -16,6 +17,8 @@ int main()
 
     renderers.push_back(std::move(debugRenderer));
     renderers.push_back(std::move(baseRenderer));
+
+    Magia::InterpolationManager interManager(engine);
 
     bool isActive = true;
     bool isMousePressed = false;
@@ -39,8 +42,9 @@ int main()
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
                 isMousePressed = true;
-                SDL_GetMouseState(&lastX, &lastY);
-                engine.Paint(lastX, lastY);
+                float x, y;
+                SDL_GetMouseState(&x, &y);
+                interManager.AddPoint(x, y);
                 break;
 
             case SDL_EVENT_MOUSE_BUTTON_UP:

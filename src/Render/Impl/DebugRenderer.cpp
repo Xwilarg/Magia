@@ -63,7 +63,7 @@ namespace Magia
         _engine.SetDrawMode(static_cast<DrawMode>(drawMode));
 
         int interpMode = _engine.GetInterpolationMode();
-        const char* interpModes[] = { "None" };
+        const char* interpModes[] = { "None", "Centripetal Catmull-Rom"};
         ImGui::Combo("Interpolation mode", &interpMode, interpModes, IM_ARRAYSIZE(interpModes));
         _engine.SetInterpolationMode(static_cast<InterpolationMode>(interpMode));
 
