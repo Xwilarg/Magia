@@ -62,6 +62,11 @@ namespace Magia
         ImGui::Combo("Draw mode", &drawMode, drawModes, IM_ARRAYSIZE(drawModes));
         _engine.SetDrawMode(static_cast<DrawMode>(drawMode));
 
+        int interpMode = _engine.GetInterpolationMode();
+        const char* interpModes[] = { "None" };
+        ImGui::Combo("Interpolation mode", &interpMode, interpModes, IM_ARRAYSIZE(interpModes));
+        _engine.SetInterpolationMode(static_cast<InterpolationMode>(interpMode));
+
         ImGui::SeparatorText("Layers");
         if (ImGui::Button("Add"))
         {

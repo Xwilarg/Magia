@@ -8,7 +8,7 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _color(), _penSize(7), _penForce(30), _drawMode(DrawMode::MULTIPLICATIVE), _drawDistance(3), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen()
+		: _renderer(renderer), _color(), _penSize(7), _penForce(30), _drawMode(DrawMode::MULTIPLICATIVE), _drawDistance(3), _interpMode(InterpolationMode::NONE), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen()
 	{
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
 		_brushPixels.Clear(TRANSPARENT_PIXEL);
@@ -192,6 +192,16 @@ namespace Magia
 	void DrawingEngine::SetDrawDistance(int distance) noexcept
 	{
 		_drawDistance = distance;
+	}
+
+	InterpolationMode DrawingEngine::GetInterpolationMode() const noexcept
+	{
+		return _interpMode;
+	}
+
+	void DrawingEngine::SetInterpolationMode(InterpolationMode mode) noexcept
+	{
+		_interpMode = mode;
 	}
 
 	std::vector<std::shared_ptr<DrawLayer>>& DrawingEngine::GetLayers() noexcept

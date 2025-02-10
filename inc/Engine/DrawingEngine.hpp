@@ -5,6 +5,7 @@
 #include "SDL3/SDL.h"
 #include "DrawMode.hpp"
 #include "DrawLayer.hpp"
+#include "InterpolationMode.hpp"
 
 namespace Magia
 {
@@ -26,6 +27,8 @@ namespace Magia
 		void SetDrawMode(DrawMode mode) noexcept;
 		int GetDrawDistance() const noexcept;
 		void SetDrawDistance(int distance) noexcept;
+		InterpolationMode GetInterpolationMode() const noexcept;
+		void SetInterpolationMode(InterpolationMode mode) noexcept;
 		std::vector<std::shared_ptr<DrawLayer>>& GetLayers() noexcept;
 		void AddNewLayer() noexcept;
 		void RemoveLayer(int index) noexcept;
@@ -50,6 +53,7 @@ namespace Magia
 		int _penForce; // 100 mean all points are colored, 50 mean half of them are
 		DrawMode _drawMode;
 		int _drawDistance;
+		InterpolationMode _interpMode;
 
 		std::random_device _dev;
 		std::mt19937 _rng;
