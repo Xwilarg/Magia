@@ -40,7 +40,21 @@ namespace Magia
         ImGui::SetNextWindowSize(ImVec2(static_cast<float>(WINDOW_WIDTH - CANVAS_WIDTH), static_cast<float>(WINDOW_HEIGHT)));
         ImGui::Begin("Settings", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
 
-        ImGui::SeparatorText("Brush");
+        ImGui::SeparatorText("Brushes");
+        auto currBrush = _engine.GetCurrentBrushIndex();
+        int index = 0;
+        for (auto&& name : _engine.GetBrushNames())
+        {
+            if (index == currBrush) ImGui::BeginDisabled();
+            if (ImGui::Button(name.c_str()))
+            {
+                _engine.SetCurrentBrushIndex(index);
+            }
+            if (index == currBrush) ImGui::EndDisabled();
+            index++;
+        }
+
+        ImGui::SeparatorText("Brush Settings");
         auto brush = _engine.GetCurrentBrush();
 
         auto colorPen = dynamic_cast<PaintBrush*>(brush.get());

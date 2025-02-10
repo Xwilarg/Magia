@@ -49,8 +49,5 @@ namespace Magia
 		std::random_device _dev;
 		std::mt19937 _rng;
 		std::uniform_int_distribution<std::mt19937::result_type> _dist;
-
-		const uint32_t WHITE_PIXEL = 4294967295;
-		const uint32_t TRANSPARENT_PIXEL = 4294967040;
 	};
 }

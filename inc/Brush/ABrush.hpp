@@ -11,7 +11,7 @@ namespace Magia
 	public:
 		virtual const std::array<int, 4>& GetColor() const noexcept = 0;
 		virtual uint32_t MixColor(uint32_t brush, uint32_t canvas) const noexcept = 0;
-		virtual const std::string& GetName() const noexcept = 0;
+		virtual std::string GetName() const noexcept = 0;
 
 		int GetPenSize() const noexcept;
 		void SetPenSize(int size) noexcept;

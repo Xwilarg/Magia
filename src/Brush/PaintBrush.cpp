@@ -43,7 +43,7 @@ namespace Magia
 	}
 
 
-	const std::string& PaintBrush::GetName() const noexcept
+	std::string PaintBrush::GetName() const noexcept
 	{
 		return "Pen";
 	}

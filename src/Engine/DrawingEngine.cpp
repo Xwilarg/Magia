@@ -1,10 +1,10 @@
 #include <cmath>
 #include <ranges>
 #include <iterator>
-#include <ranges>
 
 #include "DrawingEngine.hpp"
 #include "PaintBrush.hpp"
+#include "EraserBrush.hpp"
 #include "config.hpp"
 
 namespace Magia
@@ -13,6 +13,7 @@ namespace Magia
 		: _renderer(renderer), _canUseMouse(true), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _currentBrush(0), _brushes()
 	{
 		_brushes.emplace_back(std::make_shared<PaintBrush>());
+		_brushes.emplace_back(std::make_shared<EraserBrush>());
 
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
 		_brushPixels.Clear(TRANSPARENT_PIXEL);
