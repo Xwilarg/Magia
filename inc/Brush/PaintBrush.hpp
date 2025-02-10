@@ -16,6 +16,8 @@ namespace Magia
 		void SetDrawMode(DrawMode mode) noexcept;
 
 	private:
+		uint32_t MixColor(uint32_t brush, uint32_t canvas) const noexcept;
+		int MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept;
 		std::array<int, 4> _color;
 		DrawMode _drawMode;
 	};

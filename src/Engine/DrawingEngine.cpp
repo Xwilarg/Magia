@@ -78,44 +78,13 @@ namespace Magia
 		return y >= 0 && x >= 0 && y < WINDOW_HEIGHT && x < CANVAS_WIDTH && _dist(_rng) < GetCurrentBrush()->GetPenForce();
 	}
 
-	int DrawingEngine::MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept
-	{
-		return ((c1V * alpha1) + (c2V * alpha2 * (1 - alpha1))) / (alpha1 + alpha2 * (1 - alpha1));
-	}
-
-	uint32_t DrawingEngine::MixColor(uint32_t brush, uint32_t canvas) const noexcept
-	{
-		int brushR = (brush >> 24) & 0xFF;
-		int brushG = (brush >> 16) & 0xFF;
-		int brushB = (brush >> 8) & 0xFF;
-		int brushA = brush & 0xFF;
-		int canvasR = (canvas >> 24) & 0xFF;
-		int canvasG = (canvas >> 16) & 0xFF;
-		int canvasB = (canvas >> 8) & 0xFF;
-		int canvasA = canvas & 0xFF;
-
-		uint32_t r, g, b, a;
-
-
-		float alpha1 = brushA / 255.0f;
-		float alpha2 = canvasA / 255.0f;
-		auto alpha = alpha1 + alpha2 * (1 - alpha1);
-
-		r = MixSingleValue(brushR, canvasR, alpha1, alpha2, alpha);
-		g = MixSingleValue(brushG, canvasG, alpha1, alpha2, alpha);
-		b = MixSingleValue(brushB, canvasB, alpha1, alpha2, alpha);
-
-		a = alpha * 255;
-
-		return (r << 24) + (g << 16) + (b << 8) + a;
-	}
-
 	void DrawingEngine::ApplyPixels() noexcept
 	{
+		auto brush = GetCurrentBrush();
 		auto& layer = _layers[_selectedLayer];
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			layer->Set(i, MixColor(_brushPixels.Get(i), layer->Get(i)));
+			layer->Set(i, brush->MixColor(_brushPixels.Get(i), layer->Get(i)));
 		}
 		_brushPixels.Clear(TRANSPARENT_PIXEL);
 	}
