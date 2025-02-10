@@ -14,7 +14,7 @@ namespace Magia
 	{
 	public:
 		DrawingEngine(SDL_Renderer* renderer);
-		void UpdateScreen() noexcept;
+		void UpdateScreen(int mouseX, int mouseY) noexcept;
 		void Paint(int x, int y) noexcept;
 		void ApplyPixels() noexcept;
 
@@ -35,7 +35,7 @@ namespace Magia
 		void SetCurrentBrushIndex(int index) noexcept;
 		std::deque<std::string> GetBrushNames() const noexcept;
 	private:
-		bool IsPointInsideDrawingCanvas(int x, int y) noexcept;
+		void DrawCursor(int xMouse, int yMouse) noexcept;
 
 		SDL_Renderer* _renderer;
 		SDL_Texture* _framebuffer;

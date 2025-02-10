@@ -85,7 +85,9 @@ int main()
         {
             r->PrepareRender();
         }
-        engine.UpdateScreen();
+        float x, y;
+        SDL_GetMouseState(&x, &y);
+        engine.UpdateScreen(x, y);
         for (const auto& r : renderers)
         {
             r->Render();

@@ -9,8 +9,18 @@ namespace Magia
 	public:
 		DrawLayer() noexcept;
 		~DrawLayer() noexcept;
+		/// <summary>
+		/// Paint all pixels with the color given in parameter
+		/// </summary>
 		void Clear(uint32_t color);
-		void Draw(int x, int y, int r, int g, int b, int a);
+		/// <summary>
+		/// Call Draw but only if the pixel is in canvas bounds
+		/// </summary>
+		void TryDraw(int x, int y, int r, int g, int b, int a) noexcept;
+		/// <summary>
+		/// Draw a pixel at the specified position
+		/// </summary>
+		void Draw(int x, int y, int r, int g, int b, int a) noexcept;
 		uint32_t* Get() noexcept;
 		uint32_t Get(int i) const noexcept;
 		void Set(int i, uint32_t value) noexcept;

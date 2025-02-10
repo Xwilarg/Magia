@@ -28,7 +28,15 @@ namespace Magia
 		}
 	}
 
-	void DrawLayer::Draw(int x, int y, int r, int g, int b, int a)
+	void DrawLayer::TryDraw(int x, int y, int r, int g, int b, int a) noexcept
+	{
+		if (y >= 0 && x >= 0 && y < WINDOW_HEIGHT && x < CANVAS_WIDTH)
+		{
+			Draw(x, y, r, g, b, a);
+		}
+	}
+
+	void DrawLayer::Draw(int x, int y, int r, int g, int b, int a) noexcept
 	{
 		Set(y * CANVAS_WIDTH + x, (r << 24) + (g << 16) + (b << 8) + a);
 	}

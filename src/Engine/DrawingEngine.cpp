@@ -21,7 +21,44 @@ namespace Magia
 		AddNewLayer();
 	}
 
-	void DrawingEngine::UpdateScreen() noexcept
+	// https://en.wikipedia.org/w/index.php?title=Midpoint_circle_algorithm&oldid=889172082#C_example
+	void DrawingEngine::DrawCursor(int xMouse, int yMouse) noexcept
+	{
+		int radius = GetCurrentBrush()->GetPenSize() / 25.0; // TODO: Something is somehow wrong in that
+		int x = radius - 1;
+		int y = 0;
+		int dx = 1;
+		int dy = 1;
+		int err = dx - (radius << 1);
+
+		while (x >= y)
+		{
+			_pixelScreen.TryDraw(xMouse + x, yMouse + y, 0, 0, 0, 255);
+			_pixelScreen.TryDraw(xMouse + y, yMouse + x, 0, 0, 0, 255);
+			_pixelScreen.TryDraw(xMouse - y, yMouse + x, 0, 0, 0, 255);
+			_pixelScreen.TryDraw(xMouse - x, yMouse + y, 0, 0, 0, 255);
+			_pixelScreen.TryDraw(xMouse - x, yMouse - y, 0, 0, 0, 255);
+			_pixelScreen.TryDraw(xMouse - y, yMouse - x, 0, 0, 0, 255);
+			_pixelScreen.TryDraw(xMouse + y, yMouse - x, 0, 0, 0, 255);
+			_pixelScreen.TryDraw(xMouse + x, yMouse - y, 0, 0, 0, 255);
+
+			if (err <= 0)
+			{
+				y++;
+				err += dy;
+				dy += 2;
+			}
+
+			if (err > 0)
+			{
+				x--;
+				dx += 2;
+				err += dx - (radius << 1);
+			}
+		}
+	}
+
+	void DrawingEngine::UpdateScreen(int mouseX, int mouseY) noexcept
 	{
 		SDL_Rect canvas = {};
 		SDL_FRect fCanvas;
@@ -59,6 +96,9 @@ namespace Magia
 				_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, layer->Get(i), _pixelScreen.Get(i)));
 			}
 		}
+
+		DrawCursor(mouseX, mouseY);
+
 		SDL_UpdateTexture(_framebuffer, &canvas, _pixelScreen.Get(), CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
 		SDL_RenderTexture(_renderer, _framebuffer, &fCanvas, &fCanvas);
@@ -89,11 +129,6 @@ namespace Magia
 		{
 			_selectedLayer = _layers.size() - 1;
 		}
-	}
-
-	bool DrawingEngine::IsPointInsideDrawingCanvas(int x, int y) noexcept
-	{
-		return y >= 0 && x >= 0 && y < WINDOW_HEIGHT && x < CANVAS_WIDTH && _dist(_rng) < GetCurrentBrush()->GetPenForce();
 	}
 
 	void DrawingEngine::ApplyPixels() noexcept
@@ -127,10 +162,10 @@ namespace Magia
 					int xSym = x - (xPos - x);
 					int ySym = y - (yPos - y);
 
-					if (IsPointInsideDrawingCanvas(xPos, yPos)) _brushPixels.Draw(xPos, yPos, color[0], color[1], color[2], color[3]);
-					if (IsPointInsideDrawingCanvas(xSym, yPos)) _brushPixels.Draw(xSym, yPos, color[0], color[1], color[2], color[3]);
-					if (IsPointInsideDrawingCanvas(xPos, ySym)) _brushPixels.Draw(xPos, ySym, color[0], color[1], color[2], color[3]);
-					if (IsPointInsideDrawingCanvas(xSym, ySym)) _brushPixels.Draw(xSym, ySym, color[0], color[1], color[2], color[3]);
+					if (_dist(_rng) < GetCurrentBrush()->GetPenForce()) _brushPixels.TryDraw(xPos, yPos, color[0], color[1], color[2], color[3]);
+					if (_dist(_rng) < GetCurrentBrush()->GetPenForce()) _brushPixels.TryDraw(xSym, yPos, color[0], color[1], color[2], color[3]);
+					if (_dist(_rng) < GetCurrentBrush()->GetPenForce()) _brushPixels.TryDraw(xPos, ySym, color[0], color[1], color[2], color[3]);
+					if (_dist(_rng) < GetCurrentBrush()->GetPenForce()) _brushPixels.TryDraw(xSym, ySym, color[0], color[1], color[2], color[3]);
 				}
 			}
 		}
