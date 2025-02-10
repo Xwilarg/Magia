@@ -80,9 +80,10 @@ namespace Magia
             ImGui::TableSetupColumn("col4", ImGuiTableColumnFlags_WidthFixed);
 
             int currentLayer = _engine.GetSelectedLayerIndex();
-            int row = 0;
-            for (const auto& layer : _engine.GetLayers())
+            for (int row = _engine.GetLayers().size() - 1; row >= 0; row--)
             {
+                auto layer = _engine.GetLayers()[row];
+
                 ImGui::PushID(row);
                 ImGui::TableNextRow();
 
@@ -111,7 +112,6 @@ namespace Magia
                 }
                 if (layerCount == 1) ImGui::EndDisabled();
 
-                row++;
                 ImGui::PopID();
             }
             ImGui::EndTable();
