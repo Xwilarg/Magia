@@ -40,29 +40,13 @@ int main()
                 isActive = false;
                 break;
 
-            case SDL_EVENT_PEN_DOWN:
-                std::cout << "Pen down received" << std::endl;
-                isMousePressed = true;
-                SDL_GetMouseState(&x, &y);
-                interManager.AddPoint(x, y);
-                break;
-
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                std::cout << "Mouse down received" << std::endl;
                 isMousePressed = true;
                 SDL_GetMouseState(&x, &y);
                 interManager.AddPoint(x, y);
-                break;
-
-            case SDL_EVENT_PEN_UP:
-                std::cout << "Pen up received" << std::endl;
-                engine.ApplyPixels();
-                interManager.Clear();
-                isMousePressed = false;
                 break;
 
             case SDL_EVENT_MOUSE_BUTTON_UP:
-                std::cout << "Pen down received" << std::endl;
                 engine.ApplyPixels();
                 interManager.Clear();
                 isMousePressed = false;
