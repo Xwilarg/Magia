@@ -11,12 +11,14 @@ namespace Magia
 		PaintBrush() noexcept;
 
 		const std::array<int, 4>& GetColor() const noexcept override;
+		uint32_t MixColor(uint32_t brush, uint32_t canvas) const noexcept override;
+		const std::string& GetName() const noexcept override;
+
 		void SetColor(int r, int g, int b, int a) noexcept;
 		DrawMode GetDrawMode() const noexcept;
 		void SetDrawMode(DrawMode mode) noexcept;
 
 	private:
-		uint32_t MixColor(uint32_t brush, uint32_t canvas) const noexcept;
 		int MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept;
 		std::array<int, 4> _color;
 		DrawMode _drawMode;

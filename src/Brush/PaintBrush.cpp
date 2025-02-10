@@ -42,6 +42,12 @@ namespace Magia
 		return (r << 24) + (g << 16) + (b << 8) + a;
 	}
 
+
+	const std::string& PaintBrush::GetName() const noexcept
+	{
+		return "Pen";
+	}
+
 	const std::array<int, 4>& PaintBrush::GetColor() const noexcept
 	{
 		return _color;

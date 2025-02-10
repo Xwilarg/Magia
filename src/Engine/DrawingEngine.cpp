@@ -1,6 +1,7 @@
 #include <cmath>
 #include <ranges>
 #include <iterator>
+#include <ranges>
 
 #include "DrawingEngine.hpp"
 #include "PaintBrush.hpp"
@@ -29,17 +30,19 @@ namespace Magia
 		canvas.w = CANVAS_WIDTH;
 		SDL_RectToFRect(&canvas, &fCanvas);
 
+		auto brush = GetCurrentBrush();
+
 		_pixelScreen.Clear(WHITE_PIXEL);
 		for (const auto& layer : _layers | std::views::filter([](auto l) { return l->GetActive(); }))
 		{
 			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 			{
-				_pixelScreen.Set(i, MixColor(layer->Get(i), _pixelScreen.Get(i)));
+				_pixelScreen.Set(i, brush->MixColor(layer->Get(i), _pixelScreen.Get(i)));
 			}
 		}
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			_pixelScreen.Set(i, MixColor(_brushPixels.Get(i), _pixelScreen.Get(i)));
+			_pixelScreen.Set(i, brush->MixColor(_brushPixels.Get(i), _pixelScreen.Get(i)));
 		}
 		SDL_UpdateTexture(_framebuffer, &canvas, _pixelScreen.Get(), CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
@@ -141,5 +144,25 @@ namespace Magia
 	int DrawingEngine::GetSelectedLayerIndex() const noexcept
 	{
 		return _selectedLayer;
+	}
+
+	int DrawingEngine::GetCurrentBrushIndex() const noexcept
+	{
+		return _currentBrush;
+	}
+
+	void DrawingEngine::SetCurrentBrushIndex(int index) noexcept
+	{
+		_currentBrush = index;
+	}
+
+	std::deque<std::string> DrawingEngine::GetBrushNames() const noexcept
+	{
+		std::deque<std::string> names;
+		for (auto&& name : _brushes | std::views::transform([](auto b) { return b->GetName(); }))
+		{
+			names.push_back(name);
+		}
+		return names;
 	}
 }

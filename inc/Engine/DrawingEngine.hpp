@@ -1,6 +1,7 @@
 #pragma once
 
 #include <random>
+#include <deque>
 #include "SDL3/SDL.h"
 #include "DrawLayer.hpp"
 #include "InterpolationMode.hpp"
@@ -23,8 +24,13 @@ namespace Magia
 		void RemoveLayer(int index) noexcept;
 		int GetSelectedLayerIndex() const noexcept;
 		void SetSelectedLayerIndex(int target) noexcept;
+		
 		uint32_t* GetFinalFramebuffer() noexcept;
+		
 		std::shared_ptr<ABrush> GetCurrentBrush() noexcept;
+		int GetCurrentBrushIndex() const noexcept;
+		void SetCurrentBrushIndex(int index) noexcept;
+		std::deque<std::string> GetBrushNames() const noexcept;
 	private:
 		bool IsPointInsideDrawingCanvas(int x, int y) noexcept;
 
