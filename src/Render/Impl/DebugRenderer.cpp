@@ -1,12 +1,13 @@
 #include <string>
 
-#include "DebugRenderer.hpp"
-#include "PngExporter.hpp"
-
-#include "config.hpp"
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
+
+#include "DebugRenderer.hpp"
+#include "PngExporter.hpp"
+#include "PaintBrush.hpp"
+#include "config.hpp"
 
 namespace Magia
 {
@@ -37,39 +38,42 @@ namespace Magia
 
         ImGui::SetNextWindowPos(ImVec2(static_cast<float>(CANVAS_WIDTH), 0.f));
         ImGui::SetNextWindowSize(ImVec2(static_cast<float>(WINDOW_WIDTH - CANVAS_WIDTH), static_cast<float>(WINDOW_HEIGHT)));
-        ImGui::Begin("Pen", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+        ImGui::Begin("Settings", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
 
-        ImGui::SeparatorText("Pen");
-        auto& engineC = _engine.GetColor();
-        float colors[4] = { engineC[0] / 255.0f, engineC[1] / 255.0f, engineC[2] / 255.0f, engineC[3] / 255.0f };
-        ImGui::ColorPicker4("Color", colors, 0, 0);
-        _engine.SetColor(static_cast<int>(colors[0] * 255.0f), static_cast<int>(colors[1] * 255.0f), static_cast<int>(colors[2] * 255.0f), static_cast<int>(colors[3] * 255.0f));
+        ImGui::SeparatorText("Brush");
+        auto brush = _engine.GetCurrentBrush();
 
-        int penSize = _engine.GetPenSize();
+        auto colorPen = dynamic_cast<PaintBrush*>(brush.get());
+
+        if (colorPen != nullptr)
+        {
+            auto& engineC = colorPen->GetColor();
+            float colors[4] = { engineC[0] / 255.0f, engineC[1] / 255.0f, engineC[2] / 255.0f, engineC[3] / 255.0f };
+            ImGui::ColorPicker4("Color", colors, 0, 0);
+            colorPen->SetColor(static_cast<int>(colors[0] * 255.0f), static_cast<int>(colors[1] * 255.0f), static_cast<int>(colors[2] * 255.0f), static_cast<int>(colors[3] * 255.0f));
+
+            int drawMode = colorPen->GetDrawMode();
+            const char* drawModes[] = { "Multiplicative" };
+            ImGui::Combo("Draw mode", &drawMode, drawModes, IM_ARRAYSIZE(drawModes));
+            colorPen->SetDrawMode(static_cast<DrawMode>(drawMode));
+        }
+
+        int penSize = brush->GetPenSize();
         ImGui::SliderInt("Pen size", &penSize, 1, 1000);
-        _engine.SetPenSize(penSize);
+        brush->SetPenSize(penSize);
 
-        int penForce = _engine.GetPenForce();
+        int penForce = brush->GetPenForce();
         ImGui::SliderInt("Pen force", &penForce, 1, 50);
-        _engine.SetPenForce(penForce);
+        brush->SetPenForce(penForce);
 
-        int drawDistance = _engine.GetDrawDistance();
+        int drawDistance = brush->GetDrawDistance();
         ImGui::SliderInt("Draw distance", &drawDistance, 1, 50);
-        _engine.SetDrawDistance(drawDistance);
+        brush->SetDrawDistance(drawDistance);
 
-        int drawMode = _engine.GetDrawMode();
-        const char* drawModes[] = { "Multiplicative" };
-        ImGui::Combo("Draw mode", &drawMode, drawModes, IM_ARRAYSIZE(drawModes));
-        _engine.SetDrawMode(static_cast<DrawMode>(drawMode));
-
-        int interpMode = _engine.GetInterpolationMode();
+        int interpMode = brush->GetInterpolationMode();
         const char* interpModes[] = { "None", "Centripetal Catmull-Rom"};
         ImGui::Combo("Interpolation mode", &interpMode, interpModes, IM_ARRAYSIZE(interpModes));
-        _engine.SetInterpolationMode(static_cast<InterpolationMode>(interpMode));
-
-        bool useMouse = _engine.GetCanUseMouse();
-        ImGui::Checkbox("Allow mouse", &useMouse);
-        _engine.SetCanUseMouse(useMouse);
+        brush->SetInterpolationMode(static_cast<InterpolationMode>(interpMode));
 
         ImGui::SeparatorText("Layers");
         if (ImGui::Button("Add"))
@@ -122,11 +126,19 @@ namespace Magia
         }
 
         ImGui::SeparatorText("Export");
+        ImGui::BeginDisabled();
         if (ImGui::Button("Export to PNG"))
         {
             PngExporter expoter;
             expoter.Export("test.png", CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetFinalFramebuffer());
         }
+        ImGui::EndDisabled();
+
+        ImGui::SeparatorText("Config");
+
+        bool useMouse = _engine.GetCanUseMouse();
+        ImGui::Checkbox("Allow mouse", &useMouse);
+        _engine.SetCanUseMouse(useMouse);
 
         ImGui::SeparatorText("Debug");
         ImGui::Text("Framerate");

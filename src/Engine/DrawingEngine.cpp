@@ -3,19 +3,20 @@
 #include <iterator>
 
 #include "DrawingEngine.hpp"
+#include "PaintBrush.hpp"
 #include "config.hpp"
 
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _color(), _penSize(7), _penForce(30), _drawMode(DrawMode::MULTIPLICATIVE), _drawDistance(3), _interpMode(InterpolationMode::CENTRIPETAL_CATMULL_ROM), _canUseMouse(true), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen()
+		: _renderer(renderer), _canUseMouse(true), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _currentBrush(0), _brushes()
 	{
+		_brushes.emplace_back(std::make_shared<PaintBrush>());
+
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
 		_brushPixels.Clear(TRANSPARENT_PIXEL);
 
 		AddNewLayer();
-
-		SetColor(0, 0, 0, 255);
 	}
 
 	void DrawingEngine::UpdateScreen() noexcept
@@ -45,6 +46,11 @@ namespace Magia
 		SDL_RenderTexture(_renderer, _framebuffer, &fCanvas, &fCanvas);
 	}
 
+	std::shared_ptr<ABrush> DrawingEngine::GetCurrentBrush() noexcept
+	{
+		return _brushes[_currentBrush];
+	}
+
 	uint32_t* DrawingEngine::GetFinalFramebuffer() noexcept
 	{
 		return _pixelScreen.Get();
@@ -69,7 +75,7 @@ namespace Magia
 
 	bool DrawingEngine::IsPointInsideDrawingCanvas(int x, int y) noexcept
 	{
-		return y >= 0 && x >= 0 && y < WINDOW_HEIGHT && x < CANVAS_WIDTH && _dist(_rng) < _penForce;
+		return y >= 0 && x >= 0 && y < WINDOW_HEIGHT && x < CANVAS_WIDTH && _dist(_rng) < GetCurrentBrush()->GetPenForce();
 	}
 
 	int DrawingEngine::MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept
@@ -121,87 +127,26 @@ namespace Magia
 	{
 		if (!_layers[_selectedLayer]->GetActive()) return;
 
-		for (int yPos = y; yPos <= y + static_cast<int>(_penSize / 2.0f); yPos++)
+		auto brush = GetCurrentBrush();
+		auto& color = brush->GetColor();
+		for (int yPos = y; yPos <= y + static_cast<int>(brush->GetPenSize() / 2.0f); yPos++)
 		{
-			for (int xPos = x; xPos <= x + static_cast<int>(_penSize / 2.0f); xPos++)
+			for (int xPos = x; xPos <= x + static_cast<int>(brush->GetPenSize() / 2.0f); xPos++)
 			{
-				if ((xPos - x) * (xPos - x) + (yPos - y) * (yPos - y) < _penSize) // We are within the 'circle' shape of the brush
+				if ((xPos - x) * (xPos - x) + (yPos - y) * (yPos - y) < brush->GetPenSize()) // We are within the 'circle' shape of the brush
 				{
 					// We only take a quadrant and use symmetry to get the rest
 					// This avoid the "is inside circle" check that is quite expensive
 					int xSym = x - (xPos - x);
 					int ySym = y - (yPos - y);
 
-					if (IsPointInsideDrawingCanvas(xPos, yPos)) _brushPixels.Draw(xPos, yPos, _color[0], _color[1], _color[2], _color[3]);
-					if (IsPointInsideDrawingCanvas(xSym, yPos)) _brushPixels.Draw(xSym, yPos, _color[0], _color[1], _color[2], _color[3]);
-					if (IsPointInsideDrawingCanvas(xPos, ySym)) _brushPixels.Draw(xPos, ySym, _color[0], _color[1], _color[2], _color[3]);
-					if (IsPointInsideDrawingCanvas(xSym, ySym)) _brushPixels.Draw(xSym, ySym, _color[0], _color[1], _color[2], _color[3]);
+					if (IsPointInsideDrawingCanvas(xPos, yPos)) _brushPixels.Draw(xPos, yPos, color[0], color[1], color[2], color[3]);
+					if (IsPointInsideDrawingCanvas(xSym, yPos)) _brushPixels.Draw(xSym, yPos, color[0], color[1], color[2], color[3]);
+					if (IsPointInsideDrawingCanvas(xPos, ySym)) _brushPixels.Draw(xPos, ySym, color[0], color[1], color[2], color[3]);
+					if (IsPointInsideDrawingCanvas(xSym, ySym)) _brushPixels.Draw(xSym, ySym, color[0], color[1], color[2], color[3]);
 				}
 			}
 		}
-	}
-
-	const std::array<int, 4>& DrawingEngine::GetColor() const noexcept
-	{
-		return _color;
-	}
-
-	void DrawingEngine::SetColor(int r, int g, int b, int a) noexcept
-	{
-		_color[0] = r;
-		_color[1] = g;
-		_color[2] = b;
-		_color[3] = a;
-	}
-
-	int DrawingEngine::GetPenSize() const noexcept
-	{
-		return _penSize;
-	}
-
-	void DrawingEngine::SetPenSize(int size) noexcept
-	{
-		_penSize = size;
-	}
-
-	int DrawingEngine::GetPenForce() const noexcept
-	{
-		return _penForce;
-	}
-
-	void DrawingEngine::SetPenForce(int force) noexcept
-	{
-		_penForce = force;
-	}
-
-	DrawMode DrawingEngine::GetDrawMode() const noexcept
-	{
-		return _drawMode;
-	}
-
-	void DrawingEngine::SetDrawMode(DrawMode mode) noexcept
-	{
-		_drawMode = mode;
-	}
-
-	int DrawingEngine::GetDrawDistance() const noexcept
-	{
-		return _drawDistance;
-	}
-
-	void DrawingEngine::SetDrawDistance(int distance) noexcept
-	{
-		_drawDistance = distance;
-	}
-
-	InterpolationMode DrawingEngine::GetInterpolationMode() const noexcept
-	{
-		return _interpMode;
-	}
-
-	void DrawingEngine::SetInterpolationMode(InterpolationMode mode) noexcept
-	{
-		_interpMode = mode;
 	}
 
 	bool DrawingEngine::GetCanUseMouse() const noexcept

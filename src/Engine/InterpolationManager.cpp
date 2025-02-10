@@ -16,13 +16,14 @@ namespace Magia
 		else
 		{
 			auto last = _lastPoints.back();
-			if (std::sqrt(std::pow(last.X - x, 2) + std::pow(last.Y - y, 2)) >= _engine.GetDrawDistance())
+			auto brush = _engine.GetCurrentBrush();
+			if (std::sqrt(std::pow(last.X - x, 2) + std::pow(last.Y - y, 2)) >= brush->GetDrawDistance())
 			{
 				int dist = static_cast<int>(std::sqrt(std::pow(x - last.X, 2) + std::pow(y - last.Y, 2)));
-				if (_engine.GetInterpolationMode() == InterpolationMode::NONE || _lastPoints.size() < 2)
+				if (brush->GetInterpolationMode() == InterpolationMode::NONE || _lastPoints.size() < 2)
 				{
 					// Intepolate between last pos and current one
-					for (int d = 0; d <= dist; d += _engine.GetDrawDistance())
+					for (int d = 0; d <= dist; d += brush->GetDrawDistance())
 					{
 						int cx = static_cast<int>(std::lerp(last.X, x, d / static_cast<float>(dist)));
 						int cy = static_cast<int>(std::lerp(last.Y, y, d / static_cast<float>(dist)));
@@ -37,7 +38,7 @@ namespace Magia
 					auto lastB = _lastPoints.end()[-2];
 					auto last = _lastPoints.back();
 					auto curr = Vector2<float>(x, y);
-					for (int d = 0; d <= dist; d += _engine.GetDrawDistance())
+					for (int d = 0; d <= dist; d += brush->GetDrawDistance())
 					{
 						auto p = CatmullRom(lastB, last, curr, static_cast<float>(d) / dist);
 						_engine.Paint(p.X, p.Y);
