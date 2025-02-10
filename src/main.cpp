@@ -41,21 +41,32 @@ int main()
                 break;
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
+                if (!engine.GetCanUseMouse()) continue;
+                [[fallthrough]];
+            case SDL_EVENT_PEN_DOWN:
                 isMousePressed = true;
-                SDL_GetMouseState(&x, &y);
+                x = event.type == SDL_EVENT_MOUSE_BUTTON_DOWN ? event.button.x : event.pbutton.x;
+                y = event.type == SDL_EVENT_PEN_DOWN ? event.button.y : event.pbutton.y;
                 interManager.AddPoint(x, y);
                 break;
 
             case SDL_EVENT_MOUSE_BUTTON_UP:
+                if (!engine.GetCanUseMouse()) continue;
+                [[fallthrough]];
+            case SDL_EVENT_PEN_UP:
                 engine.ApplyPixels();
                 interManager.Clear();
                 isMousePressed = false;
                 break;
 
             case SDL_EVENT_MOUSE_MOTION:
+                if (!engine.GetCanUseMouse()) continue;
+                [[fallthrough]];
+            case SDL_EVENT_PEN_MOTION:
                 if (isMousePressed)
                 {
-                    SDL_GetMouseState(&x, &y);
+                    x = event.type == SDL_EVENT_MOUSE_MOTION ? event.motion.x : event.pmotion.x;
+                    y = event.type == SDL_EVENT_MOUSE_MOTION ? event.motion.y : event.pmotion.y;
                     interManager.AddPoint(x, y);
                 }
                 break;

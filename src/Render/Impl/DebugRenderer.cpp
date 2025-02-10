@@ -67,6 +67,10 @@ namespace Magia
         ImGui::Combo("Interpolation mode", &interpMode, interpModes, IM_ARRAYSIZE(interpModes));
         _engine.SetInterpolationMode(static_cast<InterpolationMode>(interpMode));
 
+        bool useMouse = _engine.GetCanUseMouse();
+        ImGui::Checkbox("Allow mouse", &useMouse);
+        _engine.SetCanUseMouse(useMouse);
+
         ImGui::SeparatorText("Layers");
         if (ImGui::Button("Add"))
         {

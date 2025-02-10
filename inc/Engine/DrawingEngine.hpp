@@ -29,6 +29,8 @@ namespace Magia
 		void SetDrawDistance(int distance) noexcept;
 		InterpolationMode GetInterpolationMode() const noexcept;
 		void SetInterpolationMode(InterpolationMode mode) noexcept;
+		bool GetCanUseMouse() const noexcept;
+		void SetCanUseMouse(bool value) noexcept;
 		std::vector<std::shared_ptr<DrawLayer>>& GetLayers() noexcept;
 		void AddNewLayer() noexcept;
 		void RemoveLayer(int index) noexcept;
@@ -54,6 +56,7 @@ namespace Magia
 		DrawMode _drawMode;
 		int _drawDistance;
 		InterpolationMode _interpMode;
+		bool _canUseMouse; // Mouse might get into conflict with some tablets
 
 		std::random_device _dev;
 		std::mt19937 _rng;
