@@ -23,7 +23,6 @@ int main()
     bool isActive = true;
     bool isMousePressed = false;
 
-    float lastX, lastY;
     while (isActive)
     {
         SDL_Event event;
@@ -34,45 +33,46 @@ int main()
             {
                 r->ProcessEvents(event);
             }
+            float x, y;
             switch (event.type)
             {
             case SDL_EVENT_QUIT:
                 isActive = false;
                 break;
 
-            case SDL_EVENT_MOUSE_BUTTON_DOWN:
+            case SDL_EVENT_PEN_DOWN:
+                std::cout << "Pen down received" << std::endl;
                 isMousePressed = true;
-                float x, y;
                 SDL_GetMouseState(&x, &y);
                 interManager.AddPoint(x, y);
                 break;
 
-            case SDL_EVENT_MOUSE_BUTTON_UP:
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
+                std::cout << "Mouse down received" << std::endl;
+                isMousePressed = true;
+                SDL_GetMouseState(&x, &y);
+                interManager.AddPoint(x, y);
+                break;
+
+            case SDL_EVENT_PEN_UP:
+                std::cout << "Pen up received" << std::endl;
                 engine.ApplyPixels();
+                interManager.Clear();
+                isMousePressed = false;
+                break;
+
+            case SDL_EVENT_MOUSE_BUTTON_UP:
+                std::cout << "Pen down received" << std::endl;
+                engine.ApplyPixels();
+                interManager.Clear();
                 isMousePressed = false;
                 break;
 
             case SDL_EVENT_MOUSE_MOTION:
                 if (isMousePressed)
                 {
-                    float newX, newY;
-                    SDL_GetMouseState(&newX, &newY);
-
-                    if (std::sqrt(std::pow(lastX - newX, 2) + std::pow(lastY - newY, 2)) >= engine.GetDrawDistance())
-                    {
-                        // Intepolate between last pos and current one
-                        int dist = static_cast<int>(std::sqrt(std::pow(newX - lastX, 2) + std::pow(newY - lastY, 2)));
-                        for (int d = 0; d <= dist; d += engine.GetDrawDistance())
-                        {
-                            int cx = static_cast<int>(std::lerp(lastX, newX, d / static_cast<float>(dist)));
-                            int cy = static_cast<int>(std::lerp(lastY, newY, d / static_cast<float>(dist)));
-                            engine.Paint(cx, cy);
-                        }
-
-                        lastX = newX;
-                        lastY = newY;
-                    }
-
+                    SDL_GetMouseState(&x, &y);
+                    interManager.AddPoint(x, y);
                 }
                 break;
 
