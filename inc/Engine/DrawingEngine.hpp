@@ -40,7 +40,8 @@ namespace Magia
 		SDL_Renderer* _renderer;
 		SDL_Texture* _framebuffer;
 
-		DrawLayer _brushPixels;
+		DrawLayer _brushPixels; // Current brush the user is drawing on
+		DrawLayer _intermPixels; // Intermediate layer we use to combine _brushPixels and currently active layer
 		std::vector<std::shared_ptr<DrawLayer>> _layers;
 		int _selectedLayer;
 		DrawLayer _pixelScreen;

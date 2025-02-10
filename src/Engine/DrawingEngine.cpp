@@ -34,16 +34,30 @@ namespace Magia
 		auto brush = GetCurrentBrush();
 
 		_pixelScreen.Clear(WHITE_PIXEL);
-		for (const auto& layer : _layers | std::views::filter([](auto l) { return l->GetActive(); }))
+		_intermPixels.Clear(TRANSPARENT_PIXEL);
+		for (const auto& layer : _layers | std::views::take(_selectedLayer) | std::views::filter([](auto l) { return l->GetActive(); }))
 		{
 			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 			{
 				_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, layer->Get(i), _pixelScreen.Get(i)));
 			}
 		}
-		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+		auto& midLayer = _layers[_selectedLayer];
+		if (midLayer->GetActive())
 		{
-			_pixelScreen.Set(i, brush->MixColor(_drawMode, _brushPixels.Get(i), _pixelScreen.Get(i)));
+			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+			{
+				_intermPixels.Set(i, _renderingBrush.MixColor(_drawMode, midLayer->Get(i), _intermPixels.Get(i)));
+				_intermPixels.Set(i, brush->MixColor(_drawMode, _brushPixels.Get(i), _intermPixels.Get(i)));
+				_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, _intermPixels.Get(i), _pixelScreen.Get(i)));
+			}
+		}
+		for (const auto& layer : _layers | std::views::drop(_selectedLayer + 1) | std::views::filter([](auto l) { return l->GetActive(); }))
+		{
+			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+			{
+				_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, layer->Get(i), _pixelScreen.Get(i)));
+			}
 		}
 		SDL_UpdateTexture(_framebuffer, &canvas, _pixelScreen.Get(), CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
