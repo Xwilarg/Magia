@@ -10,7 +10,7 @@ namespace Magia
 		EraserBrush() noexcept;
 
 		const std::array<int, 4>& GetColor() const noexcept override;
-		uint32_t MixColor(uint32_t brush, uint32_t canvas) const noexcept override;
+		uint32_t MixColor(DrawMode drawMode, uint32_t brush, uint32_t canvas) const noexcept override;
 		std::string GetName() const noexcept override;
 
 	private:

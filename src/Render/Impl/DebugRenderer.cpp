@@ -65,11 +65,6 @@ namespace Magia
             float colors[4] = { engineC[0] / 255.0f, engineC[1] / 255.0f, engineC[2] / 255.0f, engineC[3] / 255.0f };
             ImGui::ColorPicker4("Color", colors, 0, 0);
             colorPen->SetColor(static_cast<int>(colors[0] * 255.0f), static_cast<int>(colors[1] * 255.0f), static_cast<int>(colors[2] * 255.0f), static_cast<int>(colors[3] * 255.0f));
-
-            int drawMode = colorPen->GetDrawMode();
-            const char* drawModes[] = { "Multiplicative" };
-            ImGui::Combo("Draw mode", &drawMode, drawModes, IM_ARRAYSIZE(drawModes));
-            colorPen->SetDrawMode(static_cast<DrawMode>(drawMode));
         }
 
         int penSize = brush->GetPenSize();
@@ -153,6 +148,11 @@ namespace Magia
         bool useMouse = _engine.GetCanUseMouse();
         ImGui::Checkbox("Allow mouse", &useMouse);
         _engine.SetCanUseMouse(useMouse);
+
+        int drawMode = _engine.GetDrawMode();
+        const char* drawModes[] = { "Multiplicative" };
+        ImGui::Combo("Draw mode", &drawMode, drawModes, IM_ARRAYSIZE(drawModes));
+        _engine.SetDrawMode(static_cast<DrawMode>(drawMode));
 
         ImGui::SeparatorText("Debug");
         ImGui::Text("Framerate");

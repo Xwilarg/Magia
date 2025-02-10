@@ -10,7 +10,7 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _canUseMouse(true), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _currentBrush(0), _brushes()
+		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush(), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _currentBrush(0), _brushes()
 	{
 		_brushes.emplace_back(std::make_shared<PaintBrush>());
 		_brushes.emplace_back(std::make_shared<EraserBrush>());
@@ -38,12 +38,12 @@ namespace Magia
 		{
 			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 			{
-				_pixelScreen.Set(i, brush->MixColor(layer->Get(i), _pixelScreen.Get(i)));
+				_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, layer->Get(i), _pixelScreen.Get(i)));
 			}
 		}
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			_pixelScreen.Set(i, brush->MixColor(_brushPixels.Get(i), _pixelScreen.Get(i)));
+			_pixelScreen.Set(i, brush->MixColor(_drawMode, _brushPixels.Get(i), _pixelScreen.Get(i)));
 		}
 		SDL_UpdateTexture(_framebuffer, &canvas, _pixelScreen.Get(), CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
@@ -88,7 +88,7 @@ namespace Magia
 		auto& layer = _layers[_selectedLayer];
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
-			layer->Set(i, brush->MixColor(_brushPixels.Get(i), layer->Get(i)));
+			layer->Set(i, brush->MixColor(_drawMode, _brushPixels.Get(i), layer->Get(i)));
 		}
 		_brushPixels.Clear(TRANSPARENT_PIXEL);
 	}
@@ -120,6 +120,16 @@ namespace Magia
 				}
 			}
 		}
+	}
+
+	DrawMode DrawingEngine::GetDrawMode() const noexcept
+	{
+		return _drawMode;
+	}
+
+	void DrawingEngine::SetDrawMode(DrawMode mode) noexcept
+	{
+		_drawMode = mode;
 	}
 
 	bool DrawingEngine::GetCanUseMouse() const noexcept

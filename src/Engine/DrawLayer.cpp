@@ -7,6 +7,7 @@
 namespace Magia
 {
 	DrawLayer::DrawLayer() noexcept
+		: _isActive(true)
 	{
 		_pixels = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
 		_name = new char[50];

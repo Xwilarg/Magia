@@ -5,7 +5,8 @@
 #include "SDL3/SDL.h"
 #include "DrawLayer.hpp"
 #include "InterpolationMode.hpp"
-#include "ABrush.hpp"
+#include "DrawMode.hpp"
+#include "PaintBrush.hpp"
 
 namespace Magia
 {
@@ -24,7 +25,9 @@ namespace Magia
 		void RemoveLayer(int index) noexcept;
 		int GetSelectedLayerIndex() const noexcept;
 		void SetSelectedLayerIndex(int target) noexcept;
-		
+
+		DrawMode GetDrawMode() const noexcept;
+		void SetDrawMode(DrawMode mode) noexcept;
 		uint32_t* GetFinalFramebuffer() noexcept;
 		
 		std::shared_ptr<ABrush> GetCurrentBrush() noexcept;
@@ -42,6 +45,8 @@ namespace Magia
 		int _selectedLayer;
 		DrawLayer _pixelScreen;
 
+		PaintBrush _renderingBrush; // TODO: We should probably not create a whole brush just to use its "MixColor" method
+		DrawMode _drawMode;
 		std::vector<std::shared_ptr<ABrush>> _brushes;
 		int _currentBrush;
 		bool _canUseMouse; // Mouse might get into conflict with some tablets

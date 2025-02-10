@@ -20,7 +20,6 @@ namespace Magia
 
 	private:
 		uint32_t* _pixels;
-		uint32_t _defaultColor;
 		char* _name; // TODO: Turn into a std::string later (need to fight imgui first)
 		bool _isActive;
 	};
