@@ -29,16 +29,16 @@ namespace Magia
 		SDL_RectToFRect(&canvas, &fCanvas);
 
 		_pixelScreen.Clear(WHITE_PIXEL);
-		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
-		{
-			_pixelScreen.Set(i, MixColor(_brushPixels.Get(i), _pixelScreen.Get(i)));
-		}
 		for (const auto& layer : _layers | std::views::filter([](auto l) { return l->GetActive(); }))
 		{
 			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 			{
 				_pixelScreen.Set(i, MixColor(layer->Get(i), _pixelScreen.Get(i)));
 			}
+		}
+		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+		{
+			_pixelScreen.Set(i, MixColor(_brushPixels.Get(i), _pixelScreen.Get(i)));
 		}
 		SDL_UpdateTexture(_framebuffer, &canvas, _pixelScreen.Get(), CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
 
