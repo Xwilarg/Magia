@@ -6,6 +6,7 @@
 
 #include "DebugRenderer.hpp"
 #include "PngExporter.hpp"
+#include "McfExporter.hpp"
 #include "PaintBrush.hpp"
 #include "config.hpp"
 
@@ -135,6 +136,11 @@ namespace Magia
         }
 
         ImGui::SeparatorText("Export");
+        if (ImGui::Button("Save project"))
+        {
+            McfExporter expoter;
+            expoter.Export("project.mcf", CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetLayers());
+        }
         if (ImGui::Button("Export to PNG"))
         {
             PngExporter expoter;

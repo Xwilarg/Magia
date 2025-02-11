@@ -111,7 +111,15 @@ namespace Magia
 
 	uint32_t* DrawingEngine::GetFinalFramebuffer() noexcept
 	{
-		return _pixelScreen.Get();
+		_intermPixels.Clear(TRANSPARENT_PIXEL);
+		for (const auto& layer : _layers | std::views::filter([](auto l) { return l->GetActive(); }))
+		{
+			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+			{
+				_intermPixels.Set(i, _renderingBrush.MixColor(_drawMode, layer->Get(i), _intermPixels.Get(i)));
+			}
+		}
+		return _intermPixels.Get();
 	}
 
 	void DrawingEngine::AddNewLayer() noexcept
