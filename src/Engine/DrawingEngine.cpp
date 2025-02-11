@@ -24,7 +24,7 @@ namespace Magia
 	// https://en.wikipedia.org/w/index.php?title=Midpoint_circle_algorithm&oldid=889172082#C_example
 	void DrawingEngine::DrawCursor(int xMouse, int yMouse) noexcept
 	{
-		int radius = GetCurrentBrush()->GetPenSize() / 25.0; // TODO: Something is somehow wrong in that
+		int radius = GetCurrentBrush()->GetPenSize() / 2.0;
 		int x = radius - 1;
 		int y = 0;
 		int dx = 1;
@@ -151,21 +151,19 @@ namespace Magia
 
 		auto brush = GetCurrentBrush();
 		auto& color = brush->GetColor();
-		for (int yPos = y; yPos <= y + static_cast<int>(brush->GetPenSize() / 2.0f); yPos++)
-		{
-			for (int xPos = x; xPos <= x + static_cast<int>(brush->GetPenSize() / 2.0f); xPos++)
-			{
-				if ((xPos - x) * (xPos - x) + (yPos - y) * (yPos - y) < brush->GetPenSize()) // We are within the 'circle' shape of the brush
-				{
-					// We only take a quadrant and use symmetry to get the rest
-					// This avoid the "is inside circle" check that is quite expensive
-					int xSym = x - (xPos - x);
-					int ySym = y - (yPos - y);
 
-					if (_dist(_rng) < GetCurrentBrush()->GetPenForce()) _brushPixels.TryDraw(xPos, yPos, color[0], color[1], color[2], color[3]);
-					if (_dist(_rng) < GetCurrentBrush()->GetPenForce()) _brushPixels.TryDraw(xSym, yPos, color[0], color[1], color[2], color[3]);
-					if (_dist(_rng) < GetCurrentBrush()->GetPenForce()) _brushPixels.TryDraw(xPos, ySym, color[0], color[1], color[2], color[3]);
-					if (_dist(_rng) < GetCurrentBrush()->GetPenForce()) _brushPixels.TryDraw(xSym, ySym, color[0], color[1], color[2], color[3]);
+		int radius = brush->GetPenSize() / 2.0;
+		int sqrRad = radius * radius;
+
+		// https://stackoverflow.com/a/60555404
+		for (int px = x - radius; px <= x + radius; px++)
+		{
+			for (int py = y - radius; py <= y + radius; py++)
+			{
+				int dx = x - px, dy = y - py;
+				if (dx * dx + dy * dy <= sqrRad && _dist(_rng) < GetCurrentBrush()->GetPenForce())
+				{
+					_brushPixels.TryDraw(px, py, color[0], color[1], color[2], color[3]);
 				}
 			}
 		}
