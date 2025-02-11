@@ -46,6 +46,7 @@ namespace Magia
         int index = 0;
         for (auto&& name : _engine.GetBrushNames())
         {
+            if (index > 0) ImGui::SameLine();
             if (index == currBrush) ImGui::BeginDisabled();
             if (ImGui::Button(name.c_str()))
             {
