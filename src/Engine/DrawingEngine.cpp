@@ -10,7 +10,7 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush(), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _currentBrush(0), _brushes()
+		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush(), _exportBackground(WHITE_PIXEL), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _currentBrush(0), _brushes()
 	{
 		_brushes.emplace_back(std::make_shared<PaintBrush>());
 		_brushes.emplace_back(std::make_shared<EraserBrush>());
@@ -111,7 +111,7 @@ namespace Magia
 
 	uint32_t* DrawingEngine::GetFinalFramebuffer() noexcept
 	{
-		_intermPixels.Clear(TRANSPARENT_PIXEL);
+		_intermPixels.Clear(_exportBackground);
 		for (const auto& layer : _layers | std::views::filter([](auto l) { return l->GetActive(); }))
 		{
 			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
@@ -220,6 +220,16 @@ namespace Magia
 	void DrawingEngine::SetCurrentBrushIndex(int index) noexcept
 	{
 		_currentBrush = index;
+	}
+
+	uint32_t DrawingEngine::GetExportBackgroundColor() const noexcept
+	{
+		return _exportBackground;
+	}
+
+	void DrawingEngine::SetExportBackgroundColor(uint32_t color) noexcept
+	{
+		_exportBackground = color;
 	}
 
 	std::deque<std::string> DrawingEngine::GetBrushNames() const noexcept

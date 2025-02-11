@@ -33,6 +33,8 @@ namespace Magia
 		std::shared_ptr<ABrush> GetCurrentBrush() noexcept;
 		int GetCurrentBrushIndex() const noexcept;
 		void SetCurrentBrushIndex(int index) noexcept;
+		uint32_t GetExportBackgroundColor() const noexcept;
+		void SetExportBackgroundColor(uint32_t color) noexcept;
 		std::deque<std::string> GetBrushNames() const noexcept;
 	private:
 		void DrawCursor(int xMouse, int yMouse) noexcept;
@@ -52,6 +54,7 @@ namespace Magia
 		std::vector<std::shared_ptr<ABrush>> _brushes;
 		int _currentBrush;
 		bool _canUseMouse; // Mouse might get into conflict with some tablets
+		uint32_t _exportBackground;
 
 		std::random_device _dev;
 		std::mt19937 _rng;
