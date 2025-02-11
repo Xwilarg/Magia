@@ -5,6 +5,7 @@
 #include "DebugRenderer.hpp"
 #include "DrawingEngine.hpp"
 #include "InterpolationManager.hpp"
+#include "ShortcutManager.hpp"
 #include "config.hpp"
 
 #undef main
@@ -20,6 +21,7 @@ int main()
     renderers.push_back(std::move(baseRenderer));
 
     Magia::InterpolationManager interManager(engine);
+    Magia::ShortcutManager shortcutManager;
 
     bool isActive = true;
     bool isMousePressed = false;
@@ -39,6 +41,14 @@ int main()
             {
             case SDL_EVENT_QUIT:
                 isActive = false;
+                break;
+
+            case SDL_EVENT_KEY_DOWN:
+                shortcutManager.HandleEvent(event.key.key, true);
+                break;
+
+            case SDL_EVENT_KEY_UP:
+                shortcutManager.HandleEvent(event.key.key, false);
                 break;
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
@@ -85,6 +95,9 @@ int main()
         {
             r->PrepareRender();
         }
+
+        shortcutManager.ActivateShortcut(engine);
+
         float x, y;
         SDL_GetMouseState(&x, &y);
         engine.UpdateScreen(x, y);
