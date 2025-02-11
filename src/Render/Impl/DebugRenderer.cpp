@@ -1,4 +1,5 @@
 #include <string>
+#include <functional>
 
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
@@ -12,8 +13,13 @@
 
 namespace Magia
 {
+    void forwardToSaveToPng(void* userdata, const char* const* filelist, int filter)
+    {
+        static_cast<DebugRenderer*>(userdata)->SaveToPng(filelist, filter);
+    }
+
 	DebugRenderer::DebugRenderer(SDL_Window* window, SDL_Renderer* renderer, DrawingEngine& engine)
-        : _renderer(renderer), _engine(engine)
+        : _window(window), _renderer(renderer), _engine(engine)
 	{
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -29,6 +35,23 @@ namespace Magia
         ImGui_ImplSDLRenderer3_Shutdown();
         ImGui_ImplSDL3_Shutdown();
         ImGui::DestroyContext();
+    }
+
+    void DebugRenderer::SaveToPng(const char* const* filelist, int filter)
+    {
+        if (!filelist || !*filelist)
+        {
+            return;
+        }
+
+        auto target = std::string(*filelist);
+        if (!target.ends_with(".png"))
+        {
+            target += ".png";
+        }
+
+        PngExporter expoter;
+        expoter.Export(target, CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetFinalFramebuffer());
     }
 
     void DebugRenderer::PrepareRender() noexcept
@@ -152,8 +175,10 @@ namespace Magia
         _engine.SetExportBackgroundColor(isBgTransparent ? TRANSPARENT_PIXEL : WHITE_PIXEL);
         if (ImGui::Button("Export to PNG"))
         {
-            PngExporter expoter;
-            expoter.Export("export.png", CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetFinalFramebuffer());
+            const SDL_DialogFileFilter filters[] = {
+                { "PNG image",  "png" }
+            };
+            SDL_ShowSaveFileDialog(forwardToSaveToPng, this, _window, filters, 1, nullptr);
         }
 
         ImGui::SeparatorText("Config");

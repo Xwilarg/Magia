@@ -15,8 +15,12 @@ namespace Magia
 		void PrepareRender() noexcept override;
 		void Render() noexcept override;
 		void ProcessEvents(SDL_Event& events) noexcept override;
+		void SaveToPng(const char* const* filelist, int filter);
 	private:
+		SDL_Window* _window;
 		SDL_Renderer* _renderer;
 		DrawingEngine& _engine;
 	};
+
+	void forwardToSaveToPng(void* userdata, const char* const* filelist, int filter);
 }

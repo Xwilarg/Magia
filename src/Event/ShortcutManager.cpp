@@ -35,7 +35,7 @@ namespace Magia
 				auto force = brush->GetPenSize();
 				if (force > 1) brush->SetPenSize(force - 1);
 			}
-			else if (key == SDLK_Q)
+			else if (key == SDLK_S)
 			{
 				const auto& brush = engine.GetCurrentBrush();
 				auto force = brush->GetPenSize();
