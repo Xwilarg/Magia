@@ -39,7 +39,9 @@ namespace Magia
 
         // TODO: Fill text with software name
 
-        png_write_png(pngPtr, infoPtr, PNG_TRANSFORM_IDENTITY, NULL);
+        png_write_info(pngPtr, infoPtr);
+
+        //png_write_png(pngPtr, infoPtr, PNG_TRANSFORM_IDENTITY, NULL);
 
         png_byte** rowPointers;
         rowPointers = reinterpret_cast<png_byte**>(malloc(sizeof(png_byte*) * height));

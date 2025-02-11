@@ -135,13 +135,11 @@ namespace Magia
         }
 
         ImGui::SeparatorText("Export");
-        ImGui::BeginDisabled();
         if (ImGui::Button("Export to PNG"))
         {
             PngExporter expoter;
-            expoter.Export("test.png", CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetFinalFramebuffer());
+            expoter.Export("export.png", CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetFinalFramebuffer());
         }
-        ImGui::EndDisabled();
 
         ImGui::SeparatorText("Config");
 
