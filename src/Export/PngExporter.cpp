@@ -5,6 +5,7 @@
 
 namespace Magia
 {
+
 	void PngExporter::Export(const std::string& path, int width, int height, uint32_t* pixels)
 	{
         FILE* fp = fopen(path.c_str(), "wb");
@@ -28,7 +29,7 @@ namespace Magia
         {
             png_destroy_write_struct(&pngPtr, &infoPtr);
             fclose(fp);
-            throw std::runtime_error("Error");
+            throw std::runtime_error("Fatal error");
         }
 
         png_init_io(pngPtr, fp);
@@ -37,11 +38,14 @@ namespace Magia
 
         png_set_IHDR(pngPtr, infoPtr, width, height, 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
-        // TODO: Fill text with software name
+        char key[] = "Software";
+        char value[] = "Magia";
+        png_text metadata[] = {
+            { .compression = PNG_TEXT_COMPRESSION_NONE, .key = key, .text = value }
+        };
+        png_set_text(pngPtr, infoPtr, metadata, 1);
 
         png_write_info(pngPtr, infoPtr);
-
-        //png_write_png(pngPtr, infoPtr, PNG_TRANSFORM_IDENTITY, NULL);
 
         png_byte** rowPointers;
         rowPointers = reinterpret_cast<png_byte**>(malloc(sizeof(png_byte*) * height));
