@@ -142,6 +142,11 @@ namespace Magia
             McfExporter expoter;
             expoter.Export("project.mcf", CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetLayers());
         }
+        if (ImGui::Button("Load project"))
+        {
+            McfExporter expoter;
+            expoter.Import("project.mcf", _engine.GetLayers());
+        }
         bool isBgTransparent = _engine.GetExportBackgroundColor() == TRANSPARENT_PIXEL;
         ImGui::Checkbox("Make export background transparent", &isBgTransparent);
         _engine.SetExportBackgroundColor(isBgTransparent ? TRANSPARENT_PIXEL : WHITE_PIXEL);

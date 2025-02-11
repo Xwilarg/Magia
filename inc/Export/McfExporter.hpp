@@ -12,5 +12,6 @@ namespace Magia
 	{
 	public:
 		void Export(const std::string& path, int width, int height, std::vector<std::shared_ptr<DrawLayer>>& layers);
+		void Import(const std::string& path, std::vector<std::shared_ptr<DrawLayer>>& layers);
 	};
 }

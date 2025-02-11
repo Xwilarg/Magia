@@ -10,8 +10,8 @@ namespace Magia
 	{
 		std::ofstream fs(path, std::ios::out | std::ios::binary | std::ios::app);
 
-		fs.write(reinterpret_cast<const char*>(&width), sizeof width);
-		fs.write(reinterpret_cast<const char*>(&height), sizeof height);
+		fs.write(reinterpret_cast<const char*>(&width), sizeof(width));
+		fs.write(reinterpret_cast<const char*>(&height), sizeof(height));
 		unsigned short layerCount = layers.size();
 		fs.write(reinterpret_cast<const char*>(&layerCount), sizeof layerCount);
 		for (auto& l : layers)
@@ -32,15 +32,26 @@ namespace Magia
 				}
 				else
 				{
-					fs.write(reinterpret_cast<const char*>(&pxCount), sizeof pxCount);
-					fs.write(reinterpret_cast<const char*>(&lastPixel), sizeof value);
+					fs.write(reinterpret_cast<const char*>(&pxCount), sizeof(pxCount));
+					fs.write(reinterpret_cast<const char*>(&lastPixel), sizeof(value));
 					pxCount = 1;
 					lastPixel = value;
 				}
 			}
-			fs.write(reinterpret_cast<const char*>(&pxCount), sizeof pxCount);
-			fs.write(reinterpret_cast<const char*>(&lastPixel), sizeof lastPixel);
+			fs.write(reinterpret_cast<const char*>(&pxCount), sizeof(pxCount));
+			fs.write(reinterpret_cast<const char*>(&lastPixel), sizeof(lastPixel));
 		}
 		fs.close();
+	}
+
+	void McfExporter::Import(const std::string& path, std::vector<std::shared_ptr<DrawLayer>>& layers)
+	{
+		std::ifstream fs(path, std::ios::in | std::ios::binary);
+
+		int width, height;
+		fs.read(reinterpret_cast<char*>(&width), sizeof(width));
+		fs.read(reinterpret_cast<char*>(&width), sizeof(width));
+
+		layers.clear();
 	}
 }
