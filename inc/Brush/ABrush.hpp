@@ -21,7 +21,7 @@ namespace Magia
 		/// <summary>
 		/// Return the name of this brush
 		/// </summary>
-		virtual std::string GetName() const noexcept = 0;
+		const std::string& GetName() const noexcept;
 
 		int GetPenSize() const noexcept;
 		void SetPenSize(int size) noexcept;
@@ -32,12 +32,13 @@ namespace Magia
 		InterpolationMode GetInterpolationMode() const noexcept;
 		void SetInterpolationMode(InterpolationMode mode) noexcept;
 	protected:
-		ABrush(int penSize, int penForce, int drawDistance, InterpolationMode interpMode = InterpolationMode::CENTRIPETAL_CATMULL_ROM) noexcept;
+		ABrush(std::string&& name, int penSize, int penForce, int drawDistance, InterpolationMode interpMode = InterpolationMode::CENTRIPETAL_CATMULL_ROM) noexcept;
 	private:
 		int MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept;
 		int _penSize; // Define the radius of the amount of pixels we are drawing
 		int _penForce; // 100 mean all points are colored, 50 mean half of them are
 		int _drawDistance; // Min distance between 2 pen stamps
 		InterpolationMode _interpMode; // Interpolation methods between 2 dots
+		std::string _name;
 	};
 }

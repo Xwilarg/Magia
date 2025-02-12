@@ -135,8 +135,12 @@ namespace Magia
         brush->SetPenSize(penSize);
 
         int penForce = brush->GetPenForce();
-        ImGui::SliderInt("Pen force", &penForce, 1, 50);
-        brush->SetPenForce(penForce);
+        bool isForceEnabled = penForce < 100;
+        ImGui::Checkbox("##EnableForce", &isForceEnabled);
+        if (!isForceEnabled) ImGui::BeginDisabled();
+        ImGui::SameLine(); ImGui::SliderInt("Pen force", &penForce, 1, 50);
+        if (!isForceEnabled) ImGui::EndDisabled();
+        brush->SetPenForce(isForceEnabled ? (penForce == 100 ? 50 : penForce) : 100);
 
         int drawDistance = brush->GetDrawDistance();
         ImGui::SliderInt("Draw distance", &drawDistance, 1, 50);

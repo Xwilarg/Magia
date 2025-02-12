@@ -10,9 +10,10 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush(), _exportBackground(WHITE_PIXEL), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _currentBrush(0), _brushes()
+		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _currentBrush(0), _brushes()
 	{
-		_brushes.emplace_back(std::make_shared<PaintBrush>());
+		_brushes.emplace_back(std::make_shared<PaintBrush>("Pencil", 10, 30, 5));
+		_brushes.emplace_back(std::make_shared<PaintBrush>("Ink Pen", 5, 100, 1));
 		_brushes.emplace_back(std::make_shared<EraserBrush>());
 
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);

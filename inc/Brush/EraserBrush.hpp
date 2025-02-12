@@ -11,7 +11,6 @@ namespace Magia
 
 		const std::array<int, 4>& GetColor() const noexcept override;
 		uint32_t MixColor(DrawMode drawMode, uint32_t brush, uint32_t canvas) const noexcept override;
-		std::string GetName() const noexcept override;
 
 	private:
 		std::array<int, 4> _defaultColor;

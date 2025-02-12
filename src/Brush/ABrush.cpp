@@ -2,8 +2,8 @@
 
 namespace Magia
 {
-	ABrush::ABrush(int penSize, int penForce, int drawDistance, InterpolationMode interpMode) noexcept
-		: _penSize(penSize), _penForce(penForce), _drawDistance(drawDistance), _interpMode(interpMode)
+	ABrush::ABrush(std::string&& name, int penSize, int penForce, int drawDistance, InterpolationMode interpMode) noexcept
+		: _name(std::move(name)), _penSize(penSize), _penForce(penForce), _drawDistance(drawDistance), _interpMode(interpMode)
 	{ }
 
 	int ABrush::MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept
@@ -78,5 +78,10 @@ namespace Magia
 	void ABrush::SetInterpolationMode(InterpolationMode mode) noexcept
 	{
 		_interpMode = mode;
+	}
+
+	const std::string& ABrush::GetName() const noexcept
+	{
+		return _name;
 	}
 }

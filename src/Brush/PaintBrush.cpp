@@ -2,15 +2,10 @@
 
 namespace Magia
 {
-	PaintBrush::PaintBrush() noexcept
-		: ABrush(7, 30, 3), _color()
+	PaintBrush::PaintBrush(std::string name, int penSize, int penForce, int drawingDistance) noexcept
+		: ABrush(std::move(name), penSize, penForce, drawingDistance), _color()
 	{
 		SetColor(0, 0, 0, 255);
-	}
-
-	std::string PaintBrush::GetName() const noexcept
-	{
-		return "Pen";
 	}
 
 	const std::array<int, 4>& PaintBrush::GetColor() const noexcept
