@@ -74,8 +74,8 @@ namespace Magia
         auto target = std::string(*filelist);
         if (!target.ends_with(".mcf")) target += ".mcf";
 
-        PngExporter exporter;
-        exporter.Export(target, CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetFinalFramebuffer());
+        McfExporter exporter;
+        exporter.Export(target, CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetLayers());
         _isPendingImport = false;
     }
 
