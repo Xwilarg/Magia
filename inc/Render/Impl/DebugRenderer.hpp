@@ -18,10 +18,12 @@ namespace Magia
 		void SaveToPng(const char* const* filelist, int filter);
 		void SaveToMcf(const char* const* filelist, int filter);
 		void OpenFromMcf(const char* const* filelist, int filter);
+		bool GetPendingImport() const noexcept;
 	private:
 		SDL_Window* _window;
 		SDL_Renderer* _renderer;
 		DrawingEngine& _engine;
+		bool _isPendingImport;
 	};
 
 	void forwardToSaveToPng(void* userdata, const char* const* filelist, int filter);

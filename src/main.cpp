@@ -12,12 +12,12 @@
 
 int main()
 {
-    std::vector<std::unique_ptr<Magia::ARenderer>> renderers;
-    auto baseRenderer = std::make_unique<Magia::BuiltinRenderer>();
+    std::vector<std::shared_ptr<Magia::ARenderer>> renderers;
+    auto baseRenderer = std::make_shared<Magia::BuiltinRenderer>();
     Magia::DrawingEngine engine(baseRenderer->GetRenderer());
-    auto debugRenderer = std::make_unique<Magia::DebugRenderer>(baseRenderer->GetWindow(), baseRenderer->GetRenderer(), engine);
+    auto debugRenderer = std::make_shared<Magia::DebugRenderer>(baseRenderer->GetWindow(), baseRenderer->GetRenderer(), engine);
 
-    renderers.push_back(std::move(debugRenderer));
+    renderers.push_back(debugRenderer);
     renderers.push_back(std::move(baseRenderer));
 
     Magia::InterpolationManager interManager(engine);
@@ -28,6 +28,11 @@ int main()
 
     while (isActive)
     {
+        if (debugRenderer->GetPendingImport())
+        {
+            isMousePressed = false;
+        }
+
         SDL_Event event;
 
         while (SDL_PollEvent(&event))
@@ -55,6 +60,8 @@ int main()
                 if (!engine.GetCanUseMouse()) continue;
                 [[fallthrough]];
             case SDL_EVENT_PEN_DOWN:
+                if (debugRenderer->GetPendingImport()) continue;
+
                 x = event.type == SDL_EVENT_MOUSE_BUTTON_DOWN ? event.button.x : event.pbutton.x;
                 y = event.type == SDL_EVENT_PEN_DOWN ? event.button.y : event.pbutton.y;
 
@@ -69,6 +76,8 @@ int main()
                 if (!engine.GetCanUseMouse()) continue;
                 [[fallthrough]];
             case SDL_EVENT_PEN_UP:
+                if (debugRenderer->GetPendingImport()) continue;
+
                 engine.ApplyPixels();
                 interManager.Clear();
                 isMousePressed = false;
@@ -98,9 +107,12 @@ int main()
 
         shortcutManager.ActivateShortcut(engine);
 
-        float x, y;
-        SDL_GetMouseState(&x, &y);
-        engine.UpdateScreen(x, y);
+        if (!debugRenderer->GetPendingImport())
+        {
+            float x, y;
+            SDL_GetMouseState(&x, &y);
+            engine.UpdateScreen(x, y);
+        }
         for (const auto& r : renderers)
         {
             r->Render();

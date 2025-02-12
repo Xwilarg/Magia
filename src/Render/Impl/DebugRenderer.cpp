@@ -29,7 +29,7 @@ namespace Magia
     }
 
 	DebugRenderer::DebugRenderer(SDL_Window* window, SDL_Renderer* renderer, DrawingEngine& engine)
-        : _window(window), _renderer(renderer), _engine(engine)
+        : _window(window), _renderer(renderer), _engine(engine), _isPendingImport(false)
 	{
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -49,32 +49,47 @@ namespace Magia
 
     void DebugRenderer::SaveToPng(const char* const* filelist, int filter)
     {
-        if (!filelist || !*filelist) return;
+        if (!filelist || !*filelist)
+        {
+            _isPendingImport = false;
+            return;
+        }
 
         auto target = std::string(*filelist);
         if (!target.ends_with(".png")) target += ".png";
 
         PngExporter exporter;
         exporter.Export(target, CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetFinalFramebuffer());
+        _isPendingImport = false;
     }
 
     void DebugRenderer::SaveToMcf(const char* const* filelist, int filter)
     {
-        if (!filelist || !*filelist) return;
+        if (!filelist || !*filelist)
+        {
+            _isPendingImport = false;
+            return;
+        }
 
         auto target = std::string(*filelist);
         if (!target.ends_with(".mcf")) target += ".mcf";
 
         PngExporter exporter;
         exporter.Export(target, CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetFinalFramebuffer());
+        _isPendingImport = false;
     }
 
     void DebugRenderer::OpenFromMcf(const char* const* filelist, int filter)
     {
-        if (!filelist || !*filelist) return;
+        if (!filelist || !*filelist)
+        {
+            _isPendingImport = false;
+            return;
+        }
 
         McfExporter expoter;
         expoter.Import(std::string(*filelist), _engine.GetLayers());
+        _isPendingImport = false;
     }
 
     void DebugRenderer::PrepareRender() noexcept
@@ -189,6 +204,7 @@ namespace Magia
                 { "Compressed Magia project file",  "mcf" }
             };
             SDL_ShowSaveFileDialog(forwardToSaveToMcf, this, _window, filters, 1, nullptr);
+            _isPendingImport = true;
         }
         if (ImGui::Button("Load project"))
         {
@@ -196,6 +212,7 @@ namespace Magia
                 { "Compressed Magia project file",  "mcf" }
             };
             SDL_ShowOpenFileDialog(forwardToOpenFromMcf, this, _window, filters, 1, nullptr, false);
+            _isPendingImport = true;
         }
         bool isBgTransparent = _engine.GetExportBackgroundColor() == TRANSPARENT_PIXEL;
         ImGui::Checkbox("Make export background transparent", &isBgTransparent);
@@ -206,6 +223,7 @@ namespace Magia
                 { "PNG image",  "png" }
             };
             SDL_ShowSaveFileDialog(forwardToSaveToPng, this, _window, filters, 1, nullptr);
+            _isPendingImport = true;
         }
 
         ImGui::SeparatorText("Config");
@@ -237,5 +255,10 @@ namespace Magia
     void DebugRenderer::ProcessEvents(SDL_Event& events) noexcept
     {
         ImGui_ImplSDL3_ProcessEvent(&events);
+    }
+
+    bool DebugRenderer::GetPendingImport() const noexcept
+    {
+        return _isPendingImport;
     }
 }
