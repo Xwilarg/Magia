@@ -71,6 +71,11 @@ namespace Magia
 
 		auto brush = GetCurrentBrush();
 
+		// Render all layers
+		// If we have 10 layers and are drawing on nb 5:
+		// We render layers 1 to 4
+		// Use intermPixels as a temp buffer to store 5 and add current stroke on top, then render it
+		// Then render layers 6 to 10
 		_pixelScreen.Clear(WHITE_PIXEL);
 		_intermPixels.Clear(TRANSPARENT_PIXEL);
 		for (const auto& layer : _layers | std::views::take(_selectedLayer) | std::views::filter([](auto l) { return l->GetActive(); }))
