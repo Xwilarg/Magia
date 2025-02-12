@@ -16,6 +16,8 @@ namespace Magia
 		void Render() noexcept override;
 		void ProcessEvents(SDL_Event& events) noexcept override;
 		void SaveToPng(const char* const* filelist, int filter);
+		void SaveToMcf(const char* const* filelist, int filter);
+		void OpenFromMcf(const char* const* filelist, int filter);
 	private:
 		SDL_Window* _window;
 		SDL_Renderer* _renderer;
@@ -23,4 +25,6 @@ namespace Magia
 	};
 
 	void forwardToSaveToPng(void* userdata, const char* const* filelist, int filter);
+	void forwardToSaveToMcf(void* userdata, const char* const* filelist, int filter);
+	void forwardToOpenFromMcf(void* userdata, const char* const* filelist, int filter);
 }

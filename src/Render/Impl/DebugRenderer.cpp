@@ -18,6 +18,16 @@ namespace Magia
         static_cast<DebugRenderer*>(userdata)->SaveToPng(filelist, filter);
     }
 
+    void forwardToSaveToMcf(void* userdata, const char* const* filelist, int filter)
+    {
+        static_cast<DebugRenderer*>(userdata)->SaveToMcf(filelist, filter);
+    }
+
+    void forwardToOpenFromMcf(void* userdata, const char* const* filelist, int filter)
+    {
+        static_cast<DebugRenderer*>(userdata)->OpenFromMcf(filelist, filter);
+    }
+
 	DebugRenderer::DebugRenderer(SDL_Window* window, SDL_Renderer* renderer, DrawingEngine& engine)
         : _window(window), _renderer(renderer), _engine(engine)
 	{
@@ -39,19 +49,32 @@ namespace Magia
 
     void DebugRenderer::SaveToPng(const char* const* filelist, int filter)
     {
-        if (!filelist || !*filelist)
-        {
-            return;
-        }
+        if (!filelist || !*filelist) return;
 
         auto target = std::string(*filelist);
-        if (!target.ends_with(".png"))
-        {
-            target += ".png";
-        }
+        if (!target.ends_with(".png")) target += ".png";
 
-        PngExporter expoter;
-        expoter.Export(target, CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetFinalFramebuffer());
+        PngExporter exporter;
+        exporter.Export(target, CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetFinalFramebuffer());
+    }
+
+    void DebugRenderer::SaveToMcf(const char* const* filelist, int filter)
+    {
+        if (!filelist || !*filelist) return;
+
+        auto target = std::string(*filelist);
+        if (!target.ends_with(".mcf")) target += ".mcf";
+
+        PngExporter exporter;
+        exporter.Export(target, CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetFinalFramebuffer());
+    }
+
+    void DebugRenderer::OpenFromMcf(const char* const* filelist, int filter)
+    {
+        if (!filelist || !*filelist) return;
+
+        McfExporter expoter;
+        expoter.Import(std::string(*filelist), _engine.GetLayers());
     }
 
     void DebugRenderer::PrepareRender() noexcept
@@ -162,13 +185,17 @@ namespace Magia
         ImGui::SeparatorText("Export");
         if (ImGui::Button("Save project"))
         {
-            McfExporter expoter;
-            expoter.Export("project.mcf", CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetLayers());
+            const SDL_DialogFileFilter filters[] = {
+                { "Compressed Magia project file",  "mcf" }
+            };
+            SDL_ShowSaveFileDialog(forwardToSaveToMcf, this, _window, filters, 1, nullptr);
         }
         if (ImGui::Button("Load project"))
         {
-            McfExporter expoter;
-            expoter.Import("project.mcf", _engine.GetLayers());
+            const SDL_DialogFileFilter filters[] = {
+                { "Compressed Magia project file",  "mcf" }
+            };
+            SDL_ShowOpenFileDialog(forwardToOpenFromMcf, this, _window, filters, 1, nullptr, false);
         }
         bool isBgTransparent = _engine.GetExportBackgroundColor() == TRANSPARENT_PIXEL;
         ImGui::Checkbox("Make export background transparent", &isBgTransparent);
