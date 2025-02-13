@@ -10,7 +10,7 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _isDirty(true), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _currentBrush(0), _brushes()
+		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _isDirty(true), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _finalScreen(), _currentBrush(0), _brushes()
 	{
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Pencil", 10, 30, 5));
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Ink Pen", 5, 100, 1));
@@ -34,14 +34,14 @@ namespace Magia
 
 		while (x >= y)
 		{
-			_pixelScreen.TryDraw(xMouse + x, yMouse + y, 0, 0, 0, 255);
-			_pixelScreen.TryDraw(xMouse + y, yMouse + x, 0, 0, 0, 255);
-			_pixelScreen.TryDraw(xMouse - y, yMouse + x, 0, 0, 0, 255);
-			_pixelScreen.TryDraw(xMouse - x, yMouse + y, 0, 0, 0, 255);
-			_pixelScreen.TryDraw(xMouse - x, yMouse - y, 0, 0, 0, 255);
-			_pixelScreen.TryDraw(xMouse - y, yMouse - x, 0, 0, 0, 255);
-			_pixelScreen.TryDraw(xMouse + y, yMouse - x, 0, 0, 0, 255);
-			_pixelScreen.TryDraw(xMouse + x, yMouse - y, 0, 0, 0, 255);
+			_finalScreen.TryDraw(xMouse + x, yMouse + y, 0, 0, 0, 255);
+			_finalScreen.TryDraw(xMouse + y, yMouse + x, 0, 0, 0, 255);
+			_finalScreen.TryDraw(xMouse - y, yMouse + x, 0, 0, 0, 255);
+			_finalScreen.TryDraw(xMouse - x, yMouse + y, 0, 0, 0, 255);
+			_finalScreen.TryDraw(xMouse - x, yMouse - y, 0, 0, 0, 255);
+			_finalScreen.TryDraw(xMouse - y, yMouse - x, 0, 0, 0, 255);
+			_finalScreen.TryDraw(xMouse + y, yMouse - x, 0, 0, 0, 255);
+			_finalScreen.TryDraw(xMouse + x, yMouse - y, 0, 0, 0, 255);
 
 			if (err <= 0)
 			{
@@ -106,13 +106,18 @@ namespace Magia
 				}
 			}
 
-			DrawCursor(mouseX, mouseY);
-
-			SDL_UpdateTexture(_framebuffer, &canvas, _pixelScreen.Get(), CANVAS_WIDTH * sizeof(uint32_t)); // TODO: optimization
-
 			_isDirty = false;
 		}
 
+		_finalScreen.Clear(WHITE_PIXEL);
+		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+		{
+			_finalScreen.Set(i, _pixelScreen.Get(i));
+		}
+
+		DrawCursor(mouseX, mouseY);
+
+		SDL_UpdateTexture(_framebuffer, &canvas, _finalScreen.Get(), CANVAS_WIDTH * sizeof(uint32_t));
 		SDL_RenderTexture(_renderer, _framebuffer, &fCanvas, &fCanvas);
 	}
 
