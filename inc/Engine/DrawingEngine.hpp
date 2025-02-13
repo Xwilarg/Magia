@@ -36,6 +36,12 @@ namespace Magia
 		uint32_t GetExportBackgroundColor() const noexcept;
 		void SetExportBackgroundColor(uint32_t color) noexcept;
 		std::deque<std::string> GetBrushNames() const noexcept;
+
+		/// <summary>
+		/// Recompute layers that aren't drawn on
+		/// Need to be called everytimes something change on non-current layer (layer being disabled, draw mode changing, layer switch...)
+		/// </summary>
+		void RedrawLayerCache() noexcept;
 	private:
 		void DrawCursor(int xMouse, int yMouse) noexcept;
 
@@ -47,6 +53,9 @@ namespace Magia
 		DrawLayer _brushPixels; // Current brush the user is drawing on
 		DrawLayer _pixelScreen; // Sum of all layers
 		DrawLayer _finalScreen; // Screen after adding cursor
+
+		DrawLayer _layersBefore;
+		DrawLayer _layersAfter;
 
 		PaintBrush _renderingBrush; // TODO: We should probably not create a whole brush just to use its "MixColor" method
 		DrawMode _drawMode;

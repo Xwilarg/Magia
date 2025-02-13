@@ -173,8 +173,11 @@ namespace Magia
 
                 ImGui::TableSetColumnIndex(0);
                 bool isActive = layer->GetActive();
+                bool oldActive = isActive;
                 ImGui::Checkbox("##active", &isActive);
                 layer->SetActive(isActive);
+                if (isActive != oldActive) // TODO: Do that in DrawingEngine instead of here (check if value changed)
+                    _engine.RedrawLayerCache();
 
                 ImGui::TableSetColumnIndex(1);
                 if (row == currentLayer) ImGui::BeginDisabled();

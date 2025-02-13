@@ -10,7 +10,7 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _isDirty(true), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _finalScreen(), _currentBrush(0), _brushes()
+		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _isDirty(true), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _finalScreen(), _layersBefore(), _layersAfter(), _currentBrush(0), _brushes()
 	{
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Pencil", 10, 30, 5));
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Ink Pen", 5, 100, 1));
@@ -20,6 +20,7 @@ namespace Magia
 		_brushPixels.Clear(TRANSPARENT_PIXEL);
 
 		AddNewLayer();
+		RedrawLayerCache();
 	}
 
 	// https://en.wikipedia.org/w/index.php?title=Midpoint_circle_algorithm&oldid=889172082#C_example
@@ -59,6 +60,28 @@ namespace Magia
 		}
 	}
 
+	void DrawingEngine::RedrawLayerCache() noexcept
+	{
+		// We precompute the sum of layers that are before and after selected layers
+		_layersBefore.Clear(TRANSPARENT_PIXEL);
+		_layersAfter.Clear(TRANSPARENT_PIXEL);
+
+		for (const auto& layer : _layers | std::views::take(_selectedLayer) | std::views::filter([](auto l) { return l->GetActive(); }))
+		{
+			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+			{
+				_layersBefore.Set(i, _renderingBrush.MixColor(_drawMode, layer->Get(i), _layersBefore.Get(i)));
+			}
+		}
+		for (const auto& layer : _layers | std::views::drop(_selectedLayer + 1) | std::views::filter([](auto l) { return l->GetActive(); }))
+		{
+			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+			{
+				_layersAfter.Set(i, _renderingBrush.MixColor(_drawMode, layer->Get(i), _layersAfter.Get(i)));
+			}
+		}
+	}
+
 	void DrawingEngine::UpdateScreen(int mouseX, int mouseY) noexcept
 	{
 		SDL_Rect canvas = {};
@@ -80,12 +103,10 @@ namespace Magia
 			// Use intermPixels as a temp buffer to store 5 and add current stroke on top, then render it
 			// Then render layers 6 to 10
 			_pixelScreen.Clear(WHITE_PIXEL);
-			for (const auto& layer : _layers | std::views::take(_selectedLayer) | std::views::filter([](auto l) { return l->GetActive(); }))
+
+			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 			{
-				for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
-				{
-					_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, layer->Get(i), _pixelScreen.Get(i)));
-				}
+				_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, _layersBefore.Get(i), _pixelScreen.Get(i)));
 			}
 			auto& midLayer = _layers[_selectedLayer];
 			if (midLayer->GetActive())
@@ -96,12 +117,9 @@ namespace Magia
 					_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, step2, _pixelScreen.Get(i)));
 				}
 			}
-			for (const auto& layer : _layers | std::views::drop(_selectedLayer + 1) | std::views::filter([](auto l) { return l->GetActive(); }))
+			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 			{
-				for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
-				{
-					_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, layer->Get(i), _pixelScreen.Get(i)));
-				}
+				_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, _layersAfter.Get(i), _pixelScreen.Get(i)));
 			}
 
 			_isDirty = false;
@@ -135,6 +153,7 @@ namespace Magia
 		newLayer->Clear(TRANSPARENT_PIXEL);
 		_layers.push_back(newLayer);
 		_selectedLayer = _layers.size() - 1;
+		RedrawLayerCache();
 	}
 
 	void DrawingEngine::RemoveLayer(int index) noexcept
@@ -144,6 +163,7 @@ namespace Magia
 		{
 			_selectedLayer = _layers.size() - 1;
 		}
+		RedrawLayerCache();
 	}
 
 	void DrawingEngine::ApplyPixels() noexcept
@@ -193,7 +213,9 @@ namespace Magia
 
 	void DrawingEngine::SetDrawMode(DrawMode mode) noexcept
 	{
+		auto isDirty = mode != _drawMode;
 		_drawMode = mode;
+		if (isDirty) RedrawLayerCache();
 	}
 
 	bool DrawingEngine::GetCanUseMouse() const noexcept
@@ -213,7 +235,9 @@ namespace Magia
 
 	void DrawingEngine::SetSelectedLayerIndex(int target) noexcept
 	{
+		auto isDirty = target != _selectedLayer;
 		_selectedLayer = target;
+		if (isDirty) RedrawLayerCache();
 	}
 
 	int DrawingEngine::GetSelectedLayerIndex() const noexcept
