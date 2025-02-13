@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include <algorithm>
 
 #include "DrawLayer.hpp"
 #include "config.hpp"
@@ -7,25 +8,20 @@
 namespace Magia
 {
 	DrawLayer::DrawLayer() noexcept
-		: _isActive(true)
+		: _isActive(true), _pixels(CANVAS_WIDTH * WINDOW_HEIGHT)
 	{
-		_pixels = new uint32_t[CANVAS_WIDTH * WINDOW_HEIGHT];
 		_name = new char[50];
 		strcpy(_name, "Default");
 	}
 
 	DrawLayer::~DrawLayer() noexcept
 	{
-		delete[] _pixels;
 		delete[] _name;
 	}
 
 	void DrawLayer::Clear(uint32_t color)
 	{
-		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
-		{
-			_pixels[i] = color;
-		}
+		std::fill(_pixels.begin(), _pixels.end(), color);
 	}
 
 	void DrawLayer::TryDraw(int x, int y, int r, int g, int b, int a) noexcept
@@ -43,7 +39,7 @@ namespace Magia
 
 	uint32_t* DrawLayer::Get() noexcept
 	{
-		return _pixels;
+		return &_pixels.front();
 	}
 
 	uint32_t DrawLayer::Get(int i) const noexcept

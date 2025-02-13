@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
 
 namespace Magia
 {
@@ -29,7 +30,7 @@ namespace Magia
 		bool GetActive() const noexcept;
 
 	private:
-		uint32_t* _pixels;
+		std::vector<uint32_t> _pixels;
 		char* _name; // TODO: Turn into a std::string later (need to fight imgui first)
 		bool _isActive;
 	};
