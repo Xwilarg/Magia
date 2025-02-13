@@ -80,7 +80,6 @@ namespace Magia
 			// Use intermPixels as a temp buffer to store 5 and add current stroke on top, then render it
 			// Then render layers 6 to 10
 			_pixelScreen.Clear(WHITE_PIXEL);
-			_intermPixels.Clear(TRANSPARENT_PIXEL);
 			for (const auto& layer : _layers | std::views::take(_selectedLayer) | std::views::filter([](auto l) { return l->GetActive(); }))
 			{
 				for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
@@ -93,9 +92,8 @@ namespace Magia
 			{
 				for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 				{
-					_intermPixels.Set(i, _renderingBrush.MixColor(_drawMode, midLayer->Get(i), _intermPixels.Get(i)));
-					_intermPixels.Set(i, brush->MixColor(_drawMode, _brushPixels.Get(i), _intermPixels.Get(i)));
-					_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, _intermPixels.Get(i), _pixelScreen.Get(i)));
+					auto step2 = brush->MixColor(_drawMode, _brushPixels.Get(i), midLayer->Get(i));
+					_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, step2, _pixelScreen.Get(i)));
 				}
 			}
 			for (const auto& layer : _layers | std::views::drop(_selectedLayer + 1) | std::views::filter([](auto l) { return l->GetActive(); }))
@@ -128,15 +126,7 @@ namespace Magia
 
 	uint32_t* DrawingEngine::GetFinalFramebuffer() noexcept
 	{
-		_intermPixels.Clear(_exportBackground);
-		for (const auto& layer : _layers | std::views::filter([](auto l) { return l->GetActive(); }))
-		{
-			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
-			{
-				_intermPixels.Set(i, _renderingBrush.MixColor(_drawMode, layer->Get(i), _intermPixels.Get(i)));
-			}
-		}
-		return _intermPixels.Get();
+		return _pixelScreen.Get();
 	}
 
 	void DrawingEngine::AddNewLayer() noexcept
