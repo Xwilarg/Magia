@@ -24,6 +24,8 @@ namespace Magia
 		SDL_Renderer* _renderer;
 		DrawingEngine& _engine;
 		bool _isPendingImport;
+
+		float _lowestFps;
 	};
 
 	void forwardToSaveToPng(void* userdata, const char* const* filelist, int filter);

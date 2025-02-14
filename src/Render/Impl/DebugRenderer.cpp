@@ -29,7 +29,7 @@ namespace Magia
     }
 
 	DebugRenderer::DebugRenderer(SDL_Window* window, SDL_Renderer* renderer, DrawingEngine& engine)
-        : _window(window), _renderer(renderer), _engine(engine), _isPendingImport(false)
+        : _window(window), _renderer(renderer), _engine(engine), _isPendingImport(false), _lowestFps(std::numeric_limits<float>::max())
 	{
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -247,7 +247,19 @@ namespace Magia
         ImGui::SeparatorText("Debug");
         ImGui::Text("Framerate");
         ImGui::SameLine();
-        ImGui::Text(std::to_string(ImGui::GetIO().Framerate).c_str());
+        auto framerate = ImGui::GetIO().Framerate;
+        ImGui::Text(std::to_string(framerate).c_str());
+        if (framerate < _lowestFps)
+        {
+            _lowestFps = framerate;
+        }
+        ImGui::Text("Lowest");
+        ImGui::SameLine();
+        ImGui::Text(std::to_string(_lowestFps).c_str());
+        if (ImGui::Button("Reset"))
+        {
+            _lowestFps = framerate;
+        }
 
         ImGui::End();
 
