@@ -2,8 +2,8 @@
 
 #include <cstdint>
 
-static constexpr int WINDOW_WIDTH = 1100;
-static constexpr int WINDOW_HEIGHT = 800;
+static constexpr int WINDOW_WIDTH = 1200;
+static constexpr int WINDOW_HEIGHT = 1000;
 
 static constexpr int CANVAS_WIDTH = 800;
 
