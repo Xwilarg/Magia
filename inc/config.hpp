@@ -9,3 +9,6 @@ static constexpr int CANVAS_WIDTH = 800;
 
 static constexpr uint32_t WHITE_PIXEL = 4294967295;
 static constexpr uint32_t TRANSPARENT_PIXEL = 4294967040;
+
+static constexpr int CANVAS_VERTICAL_SPLIT_COUNT = 1;
+static constexpr int CANVAS_HORIZONTAL_SPLIT_COUNT = 1;

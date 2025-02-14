@@ -10,12 +10,20 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _isDirty(true), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _finalScreen(), _layersBefore(), _layersAfter(), _currentBrush(0), _brushes()
+		: _renderer(renderer), _framebuffers(), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _isDirty(true), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _finalScreen(), _layersBefore(), _layersAfter(), _currentBrush(0), _brushes()
 	{
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Pencil", 10, 30, 5));
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Ink Pen", 5, 100, 1));
 		_brushes.emplace_back(std::make_shared<EraserBrush>());
 
+		for (int y = 0; y < CANVAS_VERTICAL_SPLIT_COUNT; y++)
+		{
+			for (int x = 0; x < CANVAS_HORIZONTAL_SPLIT_COUNT; x++)
+			{
+				auto width = (x == 0 ? std::ceilf : std::floorf)(static_cast<float>(CANVAS_WIDTH) / CANVAS_HORIZONTAL_SPLIT_COUNT);
+				auto height = (y == 0 ? std::ceilf : std::floorf)(static_cast<float>(WINDOW_HEIGHT) / CANVAS_VERTICAL_SPLIT_COUNT);
+			}
+		}
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
 		_brushPixels.Clear(TRANSPARENT_PIXEL);
 

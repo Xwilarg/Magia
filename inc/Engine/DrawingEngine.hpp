@@ -2,6 +2,7 @@
 
 #include <random>
 #include <deque>
+#include <unordered_map>
 #include "SDL3/SDL.h"
 #include "DrawLayer.hpp"
 #include "InterpolationMode.hpp"
@@ -46,7 +47,8 @@ namespace Magia
 		void DrawCursor(int xMouse, int yMouse) noexcept;
 
 		SDL_Renderer* _renderer;
-		SDL_Texture* _framebuffer;
+
+		std::unordered_map<int, SDL_Texture*> _framebuffers;
 
 		std::vector<std::shared_ptr<DrawLayer>> _layers;
 		int _selectedLayer;
