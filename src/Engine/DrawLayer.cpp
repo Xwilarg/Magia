@@ -77,24 +77,4 @@ namespace Magia
 	{
 		return *_drawRect;
 	}
-
-	void DrawLayer::RecalculateBounds(int x, int y, int w, int h) noexcept
-	{
-		SDL_Rect rect1{};
-		rect1.x = x;
-		rect1.y = y;
-		rect1.w = w;
-		rect1.h = h;
-		SDL_Rect rect2{};
-		rect2.x = 0;
-		rect2.y = 0;
-		rect2.w = CANVAS_WIDTH;
-		rect2.h = WINDOW_HEIGHT;
-		SDL_Rect _finalRect;
-		SDL_GetRectIntersection(&rect1, &rect2, &_finalRect);
-		if (_finalRect.w > 0 && _finalRect.h > 0)
-		{
-			_drawRect = std::move(_finalRect);
-		}
-	}
 }

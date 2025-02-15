@@ -36,8 +36,6 @@ namespace Magia
 		bool HasRect() const noexcept;
 		SDL_Rect GetRect() const noexcept;
 
-		void RecalculateBounds(int x, int y, int w, int h) noexcept;
-
 	private:
 		/// <summary>
 		/// Recalculate _drawRect

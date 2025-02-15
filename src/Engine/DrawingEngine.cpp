@@ -218,8 +218,23 @@ namespace Magia
 				}
 			}
 		}
-		_brushPixels.RecalculateBounds(x - radius, y - radius, sqrRad, sqrRad);
-		_dirtyRects.push_back(_brushPixels.GetRect());
+
+		SDL_Rect rect1{};
+		rect1.x = x - radius;
+		rect1.y = y - radius;
+		rect1.w = sqrRad;
+		rect1.h = sqrRad;
+		SDL_Rect rect2{};
+		rect2.x = 0;
+		rect2.y = 0;
+		rect2.w = CANVAS_WIDTH;
+		rect2.h = WINDOW_HEIGHT;
+		SDL_Rect _finalRect;
+		SDL_GetRectIntersection(&rect1, &rect2, &_finalRect);
+		if (_finalRect.w > 0 && _finalRect.h > 0)
+		{
+			_dirtyRects.push_back(std::move(_finalRect));
+		}
 	}
 
 	DrawMode DrawingEngine::GetDrawMode() const noexcept
