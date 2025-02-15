@@ -215,9 +215,8 @@ namespace Magia
 		auto brush = GetCurrentBrush();
 		auto& color = brush->GetColor();
 
-		int radius = static_cast<int>(std::ceil(brush->GetPenSize() / 2.0)); // TOOD
-		if (radius == 1) radius = 2;
-		int sqrRad = radius * radius;
+		auto radius = brush->GetPenSize() / 2.0;
+		auto sqrRad = radius * radius;
 
 		// https://stackoverflow.com/a/60555404
 		for (int px = x - radius; px <= x + radius; px++)

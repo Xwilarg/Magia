@@ -131,7 +131,7 @@ namespace Magia
         }
 
         int penSize = brush->GetPenSize();
-        ImGui::SliderInt("Pen size", &penSize, 1, 1000);
+        ImGui::SliderInt("Pen size", &penSize, 2, 1000);
         brush->SetPenSize(penSize);
 
         int penForce = brush->GetPenForce();
