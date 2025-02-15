@@ -51,8 +51,6 @@ namespace Magia
 		std::vector<std::shared_ptr<DrawLayer>> _layers;
 		int _selectedLayer;
 		DrawLayer _brushPixels; // Current brush the user is drawing on
-		DrawLayer _pixelScreen; // Sum of all layers
-		DrawLayer _finalScreen; // Screen after adding cursor
 
 		DrawLayer _layersBefore;
 		DrawLayer _layersAfter;

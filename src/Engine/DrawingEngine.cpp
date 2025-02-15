@@ -10,7 +10,7 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _dirtyRects(), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _finalScreen(), _layersBefore(), _layersAfter(), _currentBrush(0), _brushes()
+		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _dirtyRects(), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _layersBefore(), _layersAfter(), _currentBrush(0), _brushes()
 	{
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Pencil", 10, 30, 5));
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Ink Pen", 5, 100, 1));
@@ -35,14 +35,14 @@ namespace Magia
 
 		while (x >= y)
 		{
-			_finalScreen.TryDraw(xMouse + x, yMouse + y, 0, 0, 0, 255);
+			/*_finalScreen.TryDraw(xMouse + x, yMouse + y, 0, 0, 0, 255);
 			_finalScreen.TryDraw(xMouse + y, yMouse + x, 0, 0, 0, 255);
 			_finalScreen.TryDraw(xMouse - y, yMouse + x, 0, 0, 0, 255);
 			_finalScreen.TryDraw(xMouse - x, yMouse + y, 0, 0, 0, 255);
 			_finalScreen.TryDraw(xMouse - x, yMouse - y, 0, 0, 0, 255);
 			_finalScreen.TryDraw(xMouse - y, yMouse - x, 0, 0, 0, 255);
 			_finalScreen.TryDraw(xMouse + y, yMouse - x, 0, 0, 0, 255);
-			_finalScreen.TryDraw(xMouse + x, yMouse - y, 0, 0, 0, 255);
+			_finalScreen.TryDraw(xMouse + x, yMouse - y, 0, 0, 0, 255);*/
 
 			if (err <= 0)
 			{
@@ -159,7 +159,7 @@ namespace Magia
 
 	uint32_t* DrawingEngine::GetFinalFramebuffer() noexcept
 	{
-		return _pixelScreen.Get();
+		return reinterpret_cast<uint32_t*>(SDL_RenderReadPixels(_renderer, NULL)->pixels);
 	}
 
 	void DrawingEngine::AddNewLayer() noexcept
@@ -202,7 +202,7 @@ namespace Magia
 		auto brush = GetCurrentBrush();
 		auto& color = brush->GetColor();
 
-		int radius = brush->GetPenSize() / 2.0;
+		int radius = static_cast<int>(std::ceil(brush->GetPenSize() / 2.0)); // TOOD
 		int sqrRad = radius * radius;
 
 		// https://stackoverflow.com/a/60555404
