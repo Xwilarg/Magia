@@ -33,9 +33,6 @@ namespace Magia
 		void SetActive(bool value) noexcept;
 		bool GetActive() const noexcept;
 
-		bool HasRect() const noexcept;
-		SDL_Rect GetRect() const noexcept;
-
 	private:
 		/// <summary>
 		/// Recalculate _drawRect
@@ -43,7 +40,5 @@ namespace Magia
 		std::vector<uint32_t> _pixels;
 		char* _name; // TODO: Turn into a std::string later (need to fight imgui first)
 		bool _isActive;
-
-		std::optional<SDL_Rect> _drawRect;
 	};
 }

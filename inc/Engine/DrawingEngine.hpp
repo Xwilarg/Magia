@@ -51,9 +51,9 @@ namespace Magia
 		std::vector<std::shared_ptr<DrawLayer>> _layers;
 		int _selectedLayer;
 		DrawLayer _brushPixels; // Current brush the user is drawing on
-
 		DrawLayer _layersBefore;
 		DrawLayer _layersAfter;
+		std::vector<uint32_t> _screenBuffer;
 
 		PaintBrush _renderingBrush; // TODO: We should probably not create a whole brush just to use its "MixColor" method
 		DrawMode _drawMode;

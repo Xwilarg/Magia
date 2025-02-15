@@ -8,7 +8,7 @@
 namespace Magia
 {
 	DrawLayer::DrawLayer() noexcept
-		: _isActive(true), _pixels(CANVAS_WIDTH * WINDOW_HEIGHT), _drawRect(std::nullopt)
+		: _isActive(true), _pixels(CANVAS_WIDTH * WINDOW_HEIGHT)
 	{
 		_name = new char[50];
 		strcpy(_name, "Default");
@@ -22,7 +22,6 @@ namespace Magia
 	void DrawLayer::Clear(uint32_t color)
 	{
 		std::fill(_pixels.begin(), _pixels.end(), color);
-		_drawRect = std::nullopt;
 	}
 
 	void DrawLayer::TryDraw(int x, int y, int r, int g, int b, int a) noexcept
@@ -66,15 +65,5 @@ namespace Magia
 	bool DrawLayer::GetActive() const noexcept
 	{
 		return _isActive;
-	}
-
-	bool DrawLayer::HasRect() const noexcept
-	{
-		return _drawRect != std::nullopt;
-	}
-
-	SDL_Rect DrawLayer::GetRect() const noexcept
-	{
-		return *_drawRect;
 	}
 }

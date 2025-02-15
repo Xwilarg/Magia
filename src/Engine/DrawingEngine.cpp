@@ -10,7 +10,7 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _dirtyRects(), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _layersBefore(), _layersAfter(), _currentBrush(0), _brushes()
+		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _dirtyRects(), _dev(), _rng(_dev()), _dist(1, 100), _screenBuffer(CANVAS_WIDTH * WINDOW_HEIGHT), _brushPixels(), _layers(), _selectedLayer(), _layersBefore(), _layersAfter(), _currentBrush(0), _brushes()
 	{
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Pencil", 10, 30, 5));
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Ink Pen", 5, 100, 1));
@@ -18,6 +18,7 @@ namespace Magia
 
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
 		_brushPixels.Clear(TRANSPARENT_PIXEL);
+		std::fill(_screenBuffer.begin(), _screenBuffer.end(), TRANSPARENT_PIXEL);
 
 		AddNewLayer();
 		RedrawLayerCache();
@@ -129,13 +130,14 @@ namespace Magia
 				}
 			}
 
-			// TODO
-
-			/*_finalScreen.Clear(WHITE_PIXEL);
-			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+			for (int y = 0; y < canvas.h; y++)
 			{
-				_finalScreen.Set(i, _pixelScreen.Get(i));
-			}*/
+				for (int x = 0; x < canvas.w; x++)
+				{
+					auto globalI = (canvas.x + x) + ((canvas.y + y) * CANVAS_WIDTH);
+					_screenBuffer[globalI] = buf[x + (y * canvas.w)];
+				}
+			}
 			SDL_UpdateTexture(_framebuffer, &canvas, &buf.front(), canvas.w * sizeof(uint32_t));
 
 			_dirtyRects.clear();
@@ -159,7 +161,7 @@ namespace Magia
 
 	uint32_t* DrawingEngine::GetFinalFramebuffer() noexcept
 	{
-		return reinterpret_cast<uint32_t*>(SDL_RenderReadPixels(_renderer, NULL)->pixels);
+		return &_screenBuffer.front();
 	}
 
 	void DrawingEngine::AddNewLayer() noexcept
