@@ -43,7 +43,8 @@ namespace Magia
 		/// </summary>
 		void RedrawLayerCache() noexcept;
 	private:
-		void DrawCursor(int xMouse, int yMouse) noexcept;
+		void DrawCursor(int xMouse, int yMouse, SDL_Rect canvas, std::vector<uint32_t>& buf) noexcept;
+		void SetAreaDirty(int x, int y, int w, int h) noexcept;
 
 		SDL_Renderer* _renderer;
 		SDL_Texture* _framebuffer;

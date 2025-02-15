@@ -25,7 +25,7 @@ namespace Magia
 	}
 
 	// https://en.wikipedia.org/w/index.php?title=Midpoint_circle_algorithm&oldid=889172082#C_example
-	void DrawingEngine::DrawCursor(int xMouse, int yMouse) noexcept
+	void DrawingEngine::DrawCursor(int xMouse, int yMouse, SDL_Rect canvas, std::vector<uint32_t>& buf) noexcept
 	{
 		int radius = GetCurrentBrush()->GetPenSize() / 2.0;
 		int x = radius - 1;
@@ -34,16 +34,25 @@ namespace Magia
 		int dy = 1;
 		int err = dx - (radius << 1);
 
+		auto addToBuffer = [&](int x, int y)
+		{
+			if (x >= canvas.x && y >= canvas.y && x < canvas.x + canvas.w && y < canvas.y + canvas.h)
+			{
+				auto p = (x - canvas.x) + ((y - canvas.y) * canvas.w);
+				buf[p] = BLACK_PIXEL;
+			}
+		};
+
 		while (x >= y)
 		{
-			/*_finalScreen.TryDraw(xMouse + x, yMouse + y, 0, 0, 0, 255);
-			_finalScreen.TryDraw(xMouse + y, yMouse + x, 0, 0, 0, 255);
-			_finalScreen.TryDraw(xMouse - y, yMouse + x, 0, 0, 0, 255);
-			_finalScreen.TryDraw(xMouse - x, yMouse + y, 0, 0, 0, 255);
-			_finalScreen.TryDraw(xMouse - x, yMouse - y, 0, 0, 0, 255);
-			_finalScreen.TryDraw(xMouse - y, yMouse - x, 0, 0, 0, 255);
-			_finalScreen.TryDraw(xMouse + y, yMouse - x, 0, 0, 0, 255);
-			_finalScreen.TryDraw(xMouse + x, yMouse - y, 0, 0, 0, 255);*/
+			addToBuffer(xMouse + x, yMouse + y);
+			addToBuffer(xMouse + y, yMouse + x);
+			addToBuffer(xMouse - y, yMouse + x);
+			addToBuffer(xMouse - x, yMouse + y);
+			addToBuffer(xMouse - x, yMouse - y);
+			addToBuffer(xMouse - y, yMouse - x);
+			addToBuffer(xMouse + y, yMouse - x);
+			addToBuffer(xMouse + x, yMouse - y);
 
 			if (err <= 0)
 			{
@@ -92,6 +101,8 @@ namespace Magia
 
 	void DrawingEngine::UpdateScreen(int mouseX, int mouseY) noexcept
 	{
+		int radius = GetCurrentBrush()->GetPenSize() / 2.0; // TODO: copied code
+		//SetAreaDirty(mouseX - radius, mouseY - radius, radius * 2, radius * 2);
 		for (auto&& canvas : _dirtyRects)
 		{
 			auto brush = GetCurrentBrush();
@@ -130,6 +141,7 @@ namespace Magia
 				}
 			}
 
+			// Store modification of framebuffer for export
 			for (int y = 0; y < canvas.h; y++)
 			{
 				for (int x = 0; x < canvas.w; x++)
@@ -138,10 +150,12 @@ namespace Magia
 					_screenBuffer[globalI] = buf[x + (y * canvas.w)];
 				}
 			}
+			DrawCursor(mouseX, mouseY, canvas, buf);
 			SDL_UpdateTexture(_framebuffer, &canvas, &buf.front(), canvas.w * sizeof(uint32_t));
 
 			_dirtyRects.clear();
 		}
+		SetAreaDirty(mouseX - radius, mouseY - radius, radius * 2, radius * 2);
 
 		SDL_FRect rect{};
 		rect.x = 0;
@@ -149,9 +163,6 @@ namespace Magia
 		rect.w = CANVAS_WIDTH;
 		rect.h = WINDOW_HEIGHT;
 		SDL_RenderTexture(_renderer, _framebuffer, &rect, &rect);
-
-//		DrawCursor(mouseX, mouseY);
-
 	}
 
 	std::shared_ptr<ABrush> DrawingEngine::GetCurrentBrush() noexcept
@@ -221,11 +232,16 @@ namespace Magia
 			}
 		}
 
+		SetAreaDirty(x - radius, y - radius, sqrRad, sqrRad);
+	}
+
+	void DrawingEngine::SetAreaDirty(int x, int y, int w, int h) noexcept
+	{
 		SDL_Rect rect1{};
-		rect1.x = x - radius;
-		rect1.y = y - radius;
-		rect1.w = sqrRad;
-		rect1.h = sqrRad;
+		rect1.x = x;
+		rect1.y = y;
+		rect1.w = w;
+		rect1.h = h;
 		SDL_Rect rect2{};
 		rect2.x = 0;
 		rect2.y = 0;
