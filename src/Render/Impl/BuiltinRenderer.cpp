@@ -17,6 +17,8 @@ namespace Magia
         {
             throw std::runtime_error("Window/Renderer failed to init: " + std::string(SDL_GetError()));
         }
+
+        SDL_SetRenderDrawColor(_renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	}
 
     BuiltinRenderer::~BuiltinRenderer()
@@ -26,7 +28,6 @@ namespace Magia
 
     void BuiltinRenderer::PrepareRender() noexcept
     {
-        SDL_SetRenderDrawColor(_renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(_renderer);
     }
 

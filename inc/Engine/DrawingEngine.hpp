@@ -64,7 +64,7 @@ namespace Magia
 		bool _canUseMouse; // Mouse might get into conflict with some tablets
 		uint32_t _exportBackground;
 
-		bool _isDirty; // Were layers modified? (need to be redrawn)
+		std::vector<SDL_Rect> _dirtyRects;
 
 		std::random_device _dev;
 		std::mt19937 _rng;

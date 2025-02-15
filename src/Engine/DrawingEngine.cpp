@@ -10,7 +10,7 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _isDirty(true), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _finalScreen(), _layersBefore(), _layersAfter(), _currentBrush(0), _brushes()
+		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _dirtyRects(), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(), _layers(), _selectedLayer(), _pixelScreen(), _finalScreen(), _layersBefore(), _layersAfter(), _currentBrush(0), _brushes()
 	{
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Pencil", 10, 30, 5));
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Ink Pen", 5, 100, 1));
@@ -80,61 +80,70 @@ namespace Magia
 				_layersAfter.Set(i, _renderingBrush.MixColor(_drawMode, layer->Get(i), _layersAfter.Get(i)));
 			}
 		}
+
+		SDL_Rect rect{};
+		rect.x = 0;
+		rect.y = 0;
+		rect.h = WINDOW_HEIGHT;
+		rect.w = CANVAS_WIDTH;
+		_dirtyRects.push_back(std::move(rect));
 	}
 
 	void DrawingEngine::UpdateScreen(int mouseX, int mouseY) noexcept
 	{
-		SDL_Rect canvas = {};
-		SDL_FRect fCanvas;
-		canvas.x = 0;
-		canvas.y = 0;
-		canvas.h = WINDOW_HEIGHT;
-		canvas.w = CANVAS_WIDTH;
-		SDL_RectToFRect(&canvas, &fCanvas);
-
-		if (_isDirty)
+		for (auto&& canvas : _dirtyRects)
 		{
-
 			auto brush = GetCurrentBrush();
+			auto size = canvas.w * canvas.h;
+			std::vector<uint32_t> buf(size);
+			std::fill(buf.begin(), buf.end(), WHITE_PIXEL);
 
-			// Render all layers
-			// If we have 10 layers and are drawing on nb 5:
-			// We render layers 1 to 4
-			// Use intermPixels as a temp buffer to store 5 and add current stroke on top, then render it
-			// Then render layers 6 to 10
-			_pixelScreen.Clear(WHITE_PIXEL);
-
-			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+			for (int y = 0; y < canvas.h; y++)
 			{
-				_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, _layersBefore.Get(i), _pixelScreen.Get(i)));
+				for (int x = 0; x < canvas.w; x++)
+				{
+					auto globalI = (canvas.x + x) + ((canvas.y + y) * canvas.w);
+					buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersBefore.Get(globalI), _pixelScreen.Get(globalI));
+				}
 			}
 			auto& midLayer = _layers[_selectedLayer];
 			if (midLayer->GetActive())
 			{
-				for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+				for (int y = 0; y < canvas.h; y++)
 				{
-					auto step2 = brush->MixColor(_drawMode, _brushPixels.Get(i), midLayer->Get(i));
-					_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, step2, _pixelScreen.Get(i)));
+					for (int x = 0; x < canvas.w; x++)
+					{
+						auto globalI = (canvas.x + x) + ((canvas.y + y) * canvas.w);
+						auto step2 = brush->MixColor(_drawMode, _brushPixels.Get(globalI), midLayer->Get(globalI));
+						buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, step2, _pixelScreen.Get(globalI));
+					}
 				}
 			}
+			/*for (int y = 0; y < canvas.h; y++)
+			{
+				for (int x = 0; x < canvas.w; x++)
+				{
+					auto globalI = (canvas.x + x) + ((canvas.y + y) * canvas.w);
+					buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersAfter.Get(globalI), _pixelScreen.Get(globalI));
+				}
+			}*/
+
+			// TODO
+
+			/*_finalScreen.Clear(WHITE_PIXEL);
 			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 			{
-				_pixelScreen.Set(i, _renderingBrush.MixColor(_drawMode, _layersAfter.Get(i), _pixelScreen.Get(i)));
-			}
+				_finalScreen.Set(i, _pixelScreen.Get(i));
+			}*/
+			SDL_UpdateTexture(_framebuffer, &canvas, &buf.front(), canvas.w * sizeof(uint32_t));
 
-			_isDirty = false;
+			_dirtyRects.clear();
 		}
 
-		_finalScreen.Clear(WHITE_PIXEL);
-		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
-		{
-			_finalScreen.Set(i, _pixelScreen.Get(i));
-		}
+		SDL_RenderTexture(_renderer, _framebuffer, NULL, NULL);
 
-		DrawCursor(mouseX, mouseY);
+//		DrawCursor(mouseX, mouseY);
 
-		SDL_UpdateTexture(_framebuffer, &canvas, _finalScreen.Get(), CANVAS_WIDTH * sizeof(uint32_t));
-		SDL_RenderTexture(_renderer, _framebuffer, &fCanvas, &fCanvas);
 	}
 
 	std::shared_ptr<ABrush> DrawingEngine::GetCurrentBrush() noexcept
@@ -175,7 +184,6 @@ namespace Magia
 			layer->Set(i, brush->MixColor(_drawMode, _brushPixels.Get(i), layer->Get(i)));
 		}
 		_brushPixels.Clear(TRANSPARENT_PIXEL);
-		_isDirty = true;
 	}
 
 	/// <summary>
@@ -203,7 +211,8 @@ namespace Magia
 				}
 			}
 		}
-		_isDirty = true;
+		_brushPixels.RecalculateBounds(x - radius, y - radius, sqrRad, sqrRad);
+		_dirtyRects.push_back(_brushPixels.GetRect());
 	}
 
 	DrawMode DrawingEngine::GetDrawMode() const noexcept
