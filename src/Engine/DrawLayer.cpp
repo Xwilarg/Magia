@@ -80,31 +80,11 @@ namespace Magia
 
 	void DrawLayer::RecalculateBounds(int x, int y, int w, int h) noexcept
 	{
-		if (_drawRect == std::nullopt)
-		{
-			SDL_Rect rect{};
-			rect.x = x;
-			rect.y = y;
-			rect.w = w;
-			rect.h = h;
-			_drawRect = std::move(rect);
-		}
-		else
-		{
-			auto target = std::move(*_drawRect);
-			SDL_Rect rect{};
-			rect.x = x;
-			rect.y = y;
-			rect.w = w;
-			rect.h = h;
-			SDL_Rect newRect{};
-			SDL_GetRectUnion(&rect, &target, &newRect);
-
-			// Fix oob
-			if (newRect.x + newRect.w > CANVAS_WIDTH) newRect.w = CANVAS_WIDTH - newRect.x;
-			if (newRect.y + newRect.h > CANVAS_WIDTH) newRect.h = WINDOW_HEIGHT - newRect.y;
-
-			_drawRect = std::move(newRect);
-		}
+		SDL_Rect rect{};
+		rect.x = x;
+		rect.y = y;
+		rect.w = w;
+		rect.h = h;
+		_drawRect = std::move(rect);
 	}
 }
