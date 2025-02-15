@@ -102,7 +102,7 @@ namespace Magia
 			{
 				for (int x = 0; x < canvas.w; x++)
 				{
-					auto globalI = (canvas.x + x) + ((canvas.y + y) * canvas.w);
+					auto globalI = (canvas.x + x) + ((canvas.y + y) * CANVAS_WIDTH);
 					buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersBefore.Get(globalI), _pixelScreen.Get(globalI));
 				}
 			}
@@ -113,7 +113,8 @@ namespace Magia
 				{
 					for (int x = 0; x < canvas.w; x++)
 					{
-						auto globalI = (canvas.x + x) + ((canvas.y + y) * canvas.w);
+						auto globalI = (canvas.x + x) + ((canvas.y + y) * CANVAS_WIDTH);
+
 						auto step2 = brush->MixColor(_drawMode, _brushPixels.Get(globalI), midLayer->Get(globalI));
 						buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, step2, _pixelScreen.Get(globalI));
 					}
@@ -123,7 +124,7 @@ namespace Magia
 			{
 				for (int x = 0; x < canvas.w; x++)
 				{
-					auto globalI = (canvas.x + x) + ((canvas.y + y) * canvas.w);
+					auto globalI = (canvas.x + x) + ((canvas.y + y) * CANVAS_WIDTH);
 					buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersAfter.Get(globalI), _pixelScreen.Get(globalI));
 				}
 			}*/
@@ -140,7 +141,12 @@ namespace Magia
 			_dirtyRects.clear();
 		}
 
-		SDL_RenderTexture(_renderer, _framebuffer, NULL, NULL);
+		SDL_FRect rect{};
+		rect.x = 0;
+		rect.y = 0;
+		rect.w = CANVAS_WIDTH;
+		rect.h = WINDOW_HEIGHT;
+		SDL_RenderTexture(_renderer, _framebuffer, &rect, &rect);
 
 //		DrawCursor(mouseX, mouseY);
 

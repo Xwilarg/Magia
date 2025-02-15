@@ -92,39 +92,19 @@ namespace Magia
 		else
 		{
 			auto target = std::move(*_drawRect);
-			if (x > target.x)
-			{
-				if (x < target.x + target.w)
-				{
-					// Nothing to do
-				}
-				else
-				{
-					target.w = x - target.x;
-				}
-			}
-			else
-			{
-				target.w = x - target.x;
-				target.x = x;
-			}
-			if (y > target.y)
-			{
-				if (y < target.y + target.h)
-				{
-					// Nothing to do
-				}
-				else
-				{
-					target.h = y - target.y;
-				}
-			}
-			else
-			{
-				target.h = y - target.y;
-				target.y = y;
-			}
-			_drawRect = std::move(target);
+			SDL_Rect rect{};
+			rect.x = x;
+			rect.y = y;
+			rect.w = w;
+			rect.h = h;
+			SDL_Rect newRect{};
+			SDL_GetRectUnion(&rect, &target, &newRect);
+
+			// Fix oob
+			if (newRect.x + newRect.w > CANVAS_WIDTH) newRect.w = CANVAS_WIDTH - newRect.x;
+			if (newRect.y + newRect.h > CANVAS_WIDTH) newRect.h = WINDOW_HEIGHT - newRect.y;
+
+			_drawRect = std::move(newRect);
 		}
 	}
 }
