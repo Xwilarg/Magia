@@ -103,7 +103,7 @@ namespace Magia
 				for (int x = 0; x < canvas.w; x++)
 				{
 					auto globalI = (canvas.x + x) + ((canvas.y + y) * CANVAS_WIDTH);
-					buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersBefore.Get(globalI), _pixelScreen.Get(globalI));
+					buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersBefore.Get(globalI), buf[x + (y * canvas.w)]);
 				}
 			}
 			auto& midLayer = _layers[_selectedLayer];
@@ -116,18 +116,18 @@ namespace Magia
 						auto globalI = (canvas.x + x) + ((canvas.y + y) * CANVAS_WIDTH);
 
 						auto step2 = brush->MixColor(_drawMode, _brushPixels.Get(globalI), midLayer->Get(globalI));
-						buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, step2, _pixelScreen.Get(globalI));
+						buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, step2, buf[x + (y * canvas.w)]);
 					}
 				}
 			}
-			/*for (int y = 0; y < canvas.h; y++)
+			for (int y = 0; y < canvas.h; y++)
 			{
 				for (int x = 0; x < canvas.w; x++)
 				{
 					auto globalI = (canvas.x + x) + ((canvas.y + y) * CANVAS_WIDTH);
-					buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersAfter.Get(globalI), _pixelScreen.Get(globalI));
+					buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersAfter.Get(globalI), buf[x + (y * canvas.w)]);
 				}
-			}*/
+			}
 
 			// TODO
 
