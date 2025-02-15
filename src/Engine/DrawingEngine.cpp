@@ -102,7 +102,7 @@ namespace Magia
 	void DrawingEngine::UpdateScreen(int mouseX, int mouseY) noexcept
 	{
 		int radius = GetCurrentBrush()->GetPenSize() / 2.0; // TODO: copied code
-		//SetAreaDirty(mouseX - radius, mouseY - radius, radius * 2, radius * 2);
+		SetAreaDirty(mouseX - radius, mouseY - radius, radius * 2, radius * 2);
 		for (auto&& canvas : _dirtyRects)
 		{
 			auto brush = GetCurrentBrush();
