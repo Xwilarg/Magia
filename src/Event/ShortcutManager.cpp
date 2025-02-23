@@ -16,13 +16,13 @@ namespace Magia
 				_keyPressed.push_back(key);
 			}
 		}
-		else
+		/*else
 		{
 			if (std::find(_keyPressed.begin(), _keyPressed.end(), key) != _keyPressed.end())
 			{
 				_keyPressed.erase(std::remove(_keyPressed.begin(), _keyPressed.end(), key), _keyPressed.end());
 			}
-		}
+		}*/
 	}
 
 	void ShortcutManager::ActivateShortcut(DrawingEngine& engine) noexcept
@@ -33,14 +33,15 @@ namespace Magia
 			{
 				const auto& brush = engine.GetCurrentBrush();
 				auto force = brush->GetPenSize();
-				if (force > 1) brush->SetPenSize(force - 1);
+				if (force > 2) brush->SetPenSize(force - 1);
 			}
 			else if (key == SDLK_S)
 			{
 				const auto& brush = engine.GetCurrentBrush();
 				auto force = brush->GetPenSize();
-				if (force < 50) brush->SetPenSize(force + 1);
+				if (force < 1000) brush->SetPenSize(force + 1);
 			}
 		}
+		_keyPressed.clear();
 	}
 }
