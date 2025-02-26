@@ -161,6 +161,13 @@ namespace Magia
             _engine.Undo();
         }
         if (currIndex == 0) ImGui::EndDisabled();
+        ImGui::SameLine();
+        if (currIndex == maxIndex) ImGui::BeginDisabled();
+        if (ImGui::Button("Redo"))
+        {
+            _engine.Redo();
+        }
+        if (currIndex == maxIndex) ImGui::EndDisabled();
 
         ImGui::SeparatorText("Layers");
         if (ImGui::Button("Add"))

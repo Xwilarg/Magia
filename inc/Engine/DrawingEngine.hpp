@@ -31,6 +31,7 @@ namespace Magia
 
 		// History
 		void Undo() noexcept;
+		void Redo() noexcept;
 		int GetCurrentHistoryIndex() const noexcept;
 		int GetHistoryCount() const noexcept;
 

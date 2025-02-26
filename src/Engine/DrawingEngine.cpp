@@ -192,16 +192,17 @@ namespace Magia
 			_selectedLayer = _layers.size() - 1;
 		}
 
+		/* // TODO: Following code crash
 		// We aren't at the last element of our history
 		// Since removing a layer is destructive, we just discard all history after current point
-		if (_actionIndex < _actionHistory.size() - 1)
+		if (_actionIndex < _actionHistory.size())
 		{
 			_actionHistory.erase(std::begin(_actionHistory) + _actionIndex, std::end(_actionHistory));
 		}
 
 		// Remove layer deleted from history
-		std::remove_if(std::begin(_actionHistory), std::end(_actionHistory),
-			[&](std::unique_ptr<Action>& a) { return a->LayerID == index; });
+		_actionHistory.erase(std::remove_if(std::begin(_actionHistory), std::end(_actionHistory),
+			[&](std::unique_ptr<Action>& a) { return a->LayerID == index; }));
 
 		// Since we removed a layer, layers ID changed so we need to update everything
 		for (auto&& a : _actionHistory)
@@ -210,7 +211,10 @@ namespace Magia
 			{
 				a->LayerID--;
 			}
-		}
+		}*/
+		// For now we just clear the whole history when we delete a layer
+		_actionHistory.clear();
+		_actionIndex = 0;
 
 		RedrawLayerCache();
 	}
@@ -231,7 +235,7 @@ namespace Magia
 		action->LayerID = _selectedLayer;
 
 		// If we aren't at the end of the history, discard what there is after us
-		if (_actionIndex < _actionHistory.size() - 1)
+		if (_actionIndex < _actionHistory.size())
 		{
 			_actionHistory.erase(std::begin(_actionHistory) + _actionIndex, std::end(_actionHistory));
 		}
@@ -370,6 +374,17 @@ namespace Magia
 			_layers[data->LayerID]->Set(i, data->DataBefore[i]);
 		}
 		_actionIndex--;
+		RedrawLayerCache();
+	}
+
+	void DrawingEngine::Redo() noexcept
+	{
+		auto&& data = _actionHistory[_actionIndex];
+		for (int i = 0; i < WINDOW_HEIGHT * CANVAS_WIDTH; i++)
+		{
+			_layers[data->LayerID]->Set(i, data->DataAfter[i]);
+		}
+		_actionIndex++;
 		RedrawLayerCache();
 	}
 
