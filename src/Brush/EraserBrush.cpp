@@ -4,7 +4,7 @@
 namespace Magia
 {
 	EraserBrush::EraserBrush() noexcept
-		: ABrush("Eraser", 200, 50, 3), _defaultColor(255, 255, 255, 255)
+		: ABrush("Eraser", 25, 100, 10), _defaultColor(255, 255, 255, 255)
 	{ }
 
 	uint32_t EraserBrush::MixColor(DrawMode drawMode, uint32_t brush, uint32_t canvas) const noexcept
