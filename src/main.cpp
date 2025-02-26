@@ -76,7 +76,7 @@ int main()
                 if (!engine.GetCanUseMouse()) continue;
                 [[fallthrough]];
             case SDL_EVENT_PEN_UP:
-                if (debugRenderer->GetPendingImport()) continue;
+                if (debugRenderer->GetPendingImport() || !isMousePressed) continue;
 
                 engine.ApplyPixels();
                 interManager.Clear();

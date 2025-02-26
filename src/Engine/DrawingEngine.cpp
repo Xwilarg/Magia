@@ -364,12 +364,13 @@ namespace Magia
 
 	void DrawingEngine::Undo() noexcept
 	{
-		auto&& data = _actionHistory[_actionIndex];
+		auto&& data = _actionHistory[_actionIndex - 1];
 		for (int i = 0; i < WINDOW_HEIGHT * CANVAS_WIDTH; i++)
 		{
 			_layers[data->LayerID]->Set(i, data->DataBefore[i]);
 		}
 		_actionIndex--;
+		RedrawLayerCache();
 	}
 
 	int DrawingEngine::GetCurrentHistoryIndex() const noexcept
