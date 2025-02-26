@@ -151,6 +151,17 @@ namespace Magia
         ImGui::Combo("Interpolation mode", &interpMode, interpModes, IM_ARRAYSIZE(interpModes));
         brush->SetInterpolationMode(static_cast<InterpolationMode>(interpMode));
 
+        ImGui::SeparatorText("History");
+        auto currIndex = _engine.GetCurrentHistoryIndex();
+        auto maxIndex = _engine.GetHistoryCount();
+        ImGui::Text((std::to_string(currIndex) + " / " + std::to_string(maxIndex)).c_str());
+        if (currIndex == 0) ImGui::BeginDisabled();
+        if (ImGui::Button("Undo"))
+        {
+            _engine.Undo();
+        }
+        if (currIndex == 0) ImGui::EndDisabled();
+
         ImGui::SeparatorText("Layers");
         if (ImGui::Button("Add"))
         {

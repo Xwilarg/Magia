@@ -7,6 +7,7 @@
 #include "InterpolationMode.hpp"
 #include "DrawMode.hpp"
 #include "PaintBrush.hpp"
+#include "Action.hpp"
 
 namespace Magia
 {
@@ -16,20 +17,29 @@ namespace Magia
 		DrawingEngine(SDL_Renderer* renderer);
 		void UpdateScreen(int mouseX, int mouseY) noexcept;
 		void Paint(int x, int y) noexcept;
+		/// <summary>
+		/// Called when mouse is raised, apply current stroke to canvas
+		/// </summary>
 		void ApplyPixels() noexcept;
 
-		bool GetCanUseMouse() const noexcept;
-		void SetCanUseMouse(bool value) noexcept;
+		// Layers
 		std::vector<std::shared_ptr<DrawLayer>>& GetLayers() noexcept;
 		void AddNewLayer() noexcept;
 		void RemoveLayer(int index) noexcept;
 		int GetSelectedLayerIndex() const noexcept;
 		void SetSelectedLayerIndex(int target) noexcept;
 
+		// History
+		void Undo() noexcept;
+		int GetCurrentHistoryIndex() const noexcept;
+		int GetHistoryCount() const noexcept;
+
+		// Others getter/setters
+		bool GetCanUseMouse() const noexcept;
+		void SetCanUseMouse(bool value) noexcept;
 		DrawMode GetDrawMode() const noexcept;
 		void SetDrawMode(DrawMode mode) noexcept;
 		uint32_t* GetFinalFramebuffer() noexcept;
-		
 		std::shared_ptr<ABrush> GetCurrentBrush() noexcept;
 		int GetCurrentBrushIndex() const noexcept;
 		void SetCurrentBrushIndex(int index) noexcept;
@@ -68,5 +78,8 @@ namespace Magia
 		std::random_device _dev;
 		std::mt19937 _rng;
 		std::uniform_int_distribution<std::mt19937::result_type> _dist;
+
+		std::vector<std::unique_ptr<Action>> _actionHistory;
+		int _actionIndex;
 	};
 }

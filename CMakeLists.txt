@@ -16,6 +16,6 @@ add_executable(Magia
 "src/Engine/DrawingEngine.cpp" "src/Engine/DrawLayer.cpp" "src/Engine/InterpolationManager.cpp"
 "src/Export/PngExporter.cpp" "src/Export/McfExporter.cpp"
 "src/Brush/ABrush.cpp" "src/Brush/PaintBrush.cpp" "src/Brush/EraserBrush.cpp"
-"src/Event/ShortcutManager.cpp")
+"src/Event/ShortcutManager.cpp" )
 
 target_link_libraries(Magia PRIVATE SDL3::SDL3 imgui::imgui PNG::PNG)

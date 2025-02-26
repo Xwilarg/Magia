@@ -25,8 +25,7 @@ namespace Magia
 		/// Draw a pixel at the specified position
 		/// </summary>
 		void Draw(int x, int y, int r, int g, int b, int a) noexcept;
-		uint32_t* Get() noexcept;
-		uint32_t* Get(int x, int y, int w, int h) noexcept;
+		const std::vector<uint32_t>& Get() noexcept;
 		uint32_t Get(int i) const noexcept;
 		void Set(int i, uint32_t value) noexcept;
 		char* GetName() noexcept;

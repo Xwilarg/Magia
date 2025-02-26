@@ -37,9 +37,9 @@ namespace Magia
 		Set(y * CANVAS_WIDTH + x, (r << 24) + (g << 16) + (b << 8) + a);
 	}
 
-	uint32_t* DrawLayer::Get() noexcept
+	const std::vector<uint32_t>& DrawLayer::Get() noexcept
 	{
-		return &_pixels.front();
+		return _pixels;
 	}
 
 	uint32_t DrawLayer::Get(int i) const noexcept

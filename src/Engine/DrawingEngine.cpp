@@ -10,7 +10,7 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _dirtyRects(), _dev(), _rng(_dev()), _dist(1, 100), _screenBuffer(CANVAS_WIDTH * WINDOW_HEIGHT), _brushPixels(), _layers(), _selectedLayer(), _layersBefore(), _layersAfter(), _currentBrush(0), _brushes()
+		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _dirtyRects(), _dev(), _rng(_dev()), _dist(1, 100), _screenBuffer(CANVAS_WIDTH * WINDOW_HEIGHT), _brushPixels(), _layers(), _selectedLayer(), _layersBefore(), _layersAfter(), _currentBrush(0), _brushes(), _actionHistory(), _actionIndex(0)
 	{
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Pencil", 10, 30, 5));
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Ink Pen", 5, 100, 1));
@@ -191,6 +191,27 @@ namespace Magia
 		{
 			_selectedLayer = _layers.size() - 1;
 		}
+
+		// We aren't at the last element of our history
+		// Since removing a layer is destructive, we just discard all history after current point
+		if (_actionIndex < _actionHistory.size() - 1)
+		{
+			_actionHistory.erase(std::begin(_actionHistory) + _actionIndex, std::end(_actionHistory));
+		}
+
+		// Remove layer deleted from history
+		std::remove_if(std::begin(_actionHistory), std::end(_actionHistory),
+			[&](std::unique_ptr<Action>& a) { return a->LayerID == index; });
+
+		// Since we removed a layer, layers ID changed so we need to update everything
+		for (auto&& a : _actionHistory)
+		{
+			if (a->LayerID > index)
+			{
+				a->LayerID--;
+			}
+		}
+
 		RedrawLayerCache();
 	}
 
@@ -198,10 +219,28 @@ namespace Magia
 	{
 		auto brush = GetCurrentBrush();
 		auto& layer = _layers[_selectedLayer];
+
+		// Apply brush to canvas & create history
+		auto action = std::make_unique<Action>();
+		action->DataBefore = layer->Get();
 		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
 		{
 			layer->Set(i, brush->MixColor(_drawMode, _brushPixels.Get(i), layer->Get(i)));
 		}
+		action->DataAfter = layer->Get();
+		action->LayerID = _selectedLayer;
+
+		// If we aren't at the end of the history, discard what there is after us
+		if (_actionIndex < _actionHistory.size() - 1)
+		{
+			_actionHistory.erase(std::begin(_actionHistory) + _actionIndex, std::end(_actionHistory));
+		}
+
+		// Add action to history
+		_actionHistory.push_back(std::move(action));
+		_actionIndex++;
+
+		// Clear brush storing current stroke
 		_brushPixels.Clear(TRANSPARENT_PIXEL);
 	}
 
@@ -321,5 +360,25 @@ namespace Magia
 			names.push_back(name);
 		}
 		return names;
+	}
+
+	void DrawingEngine::Undo() noexcept
+	{
+		auto&& data = _actionHistory[_actionIndex];
+		for (int i = 0; i < WINDOW_HEIGHT * CANVAS_WIDTH; i++)
+		{
+			_layers[data->LayerID]->Set(i, data->DataBefore[i]);
+		}
+		_actionIndex--;
+	}
+
+	int DrawingEngine::GetCurrentHistoryIndex() const noexcept
+	{
+		return _actionIndex;
+	}
+
+	int DrawingEngine::GetHistoryCount() const noexcept
+	{
+		return _actionHistory.size();
 	}
 }
