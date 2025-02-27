@@ -9,7 +9,11 @@ namespace Magia
 
 	void ShortcutManager::HandleEvent(SDL_Keycode key, bool isDown) noexcept
 	{
-		if (isDown)
+		if (key == SDLK_LCTRL)
+		{
+			_isCtrlPressed = isDown;
+		}
+		else if (isDown)
 		{
 			if (std::find(_keyPressed.begin(), _keyPressed.end(), key) == _keyPressed.end())
 			{
@@ -40,6 +44,14 @@ namespace Magia
 				const auto& brush = engine.GetCurrentBrush();
 				auto force = brush->GetPenSize();
 				if (force < 1000) brush->SetPenSize(force + 1);
+			}
+			else if (_isCtrlPressed && key == SDLK_Z)
+			{
+				if (engine.GetCurrentHistoryIndex() > 0) engine.Undo();
+			}
+			else if (_isCtrlPressed && key == SDLK_Y)
+			{
+				if (engine.GetCurrentHistoryIndex() < engine.GetHistoryCount()) engine.Redo();
 			}
 		}
 		_keyPressed.clear();

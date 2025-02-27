@@ -16,5 +16,6 @@ namespace Magia
 
 	private:
 		std::vector<SDL_Keycode> _keyPressed;
+		bool _isCtrlPressed;
 	};
 }
