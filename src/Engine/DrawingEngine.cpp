@@ -10,7 +10,7 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _dirtyRects(), _dev(), _rng(_dev()), _dist(1, 100), _screenBuffer(CANVAS_WIDTH * WINDOW_HEIGHT), _brushPixels(), _layers(), _selectedLayer(), _layersBefore(), _layersAfter(), _currentBrush(0), _brushes(), _actionHistory(), _actionIndex(0)
+		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _dirtyRects(), _dev(), _rng(_dev()), _dist(1, 100), _screenBuffer(CANVAS_WIDTH * WINDOW_HEIGHT), _brushPixels(), _layers(), _selectedLayer(), _layersBefore(), _layersAfter(), _currentBrush(0), _brushes(), _actionHistory(), _actionIndex(0), _offsetX(0), _offsetY(0)
 	{
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Pencil", 10, 30, 5));
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Ink Pen", 5, 100, 1));
@@ -246,6 +246,12 @@ namespace Magia
 
 		// Clear brush storing current stroke
 		_brushPixels.Clear(TRANSPARENT_PIXEL);
+	}
+
+	void DrawingEngine::MoveCanvas(int x, int y) noexcept
+	{
+		_offsetX += x;
+		_offsetY += y;
 	}
 
 	/// <summary>

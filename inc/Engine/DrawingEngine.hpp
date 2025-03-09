@@ -22,6 +22,8 @@ namespace Magia
 		/// </summary>
 		void ApplyPixels() noexcept;
 
+		void MoveCanvas(int x, int y) noexcept;
+
 		// Layers
 		std::vector<std::shared_ptr<DrawLayer>>& GetLayers() noexcept;
 		void AddNewLayer() noexcept;
@@ -82,5 +84,7 @@ namespace Magia
 
 		std::vector<std::unique_ptr<Action>> _actionHistory;
 		int _actionIndex;
+
+		int _offsetX, _offsetY;
 	};
 }
