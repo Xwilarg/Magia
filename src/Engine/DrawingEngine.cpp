@@ -194,7 +194,7 @@ namespace Magia
 
 	void DrawingEngine::AddNewLayer() noexcept
 	{
-		auto newLayer = std::make_shared<DrawLayer>();
+		auto newLayer = std::make_shared<DrawLayer>(_canvasSize.X * _canvasSize.Y);
 		newLayer->Clear(TRANSPARENT_PIXEL);
 		_layers.push_back(newLayer);
 		_selectedLayer = _layers.size() - 1;

@@ -60,7 +60,7 @@ namespace Magia
 
 		for (int l = 0; l < layerCount; l++)
 		{
-			std::shared_ptr<DrawLayer> layer = std::make_shared<DrawLayer>();
+			std::shared_ptr<DrawLayer> layer = std::make_shared<DrawLayer>(width, height);
 
 			int i = 0;
 			while (i < max)
