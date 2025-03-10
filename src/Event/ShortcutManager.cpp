@@ -53,6 +53,22 @@ namespace Magia
 			{
 				if (engine.GetCurrentHistoryIndex() < engine.GetHistoryCount()) engine.Redo();
 			}
+			else if (_isCtrlPressed && key == SDLK_UP)
+			{
+				engine.MoveCanvas(0, 1);
+			}
+			else if (_isCtrlPressed && key == SDLK_DOWN)
+			{
+				engine.MoveCanvas(0, -1);
+			}
+			else if (_isCtrlPressed && key == SDLK_LEFT)
+			{
+				engine.MoveCanvas(1, 0);
+			}
+			else if (_isCtrlPressed && key == SDLK_RIGHT)
+			{
+				engine.MoveCanvas(-1, 0);
+			}
 		}
 		_keyPressed.clear();
 	}

@@ -49,6 +49,8 @@ namespace Magia
 		uint32_t GetExportBackgroundColor() const noexcept;
 		void SetExportBackgroundColor(uint32_t color) noexcept;
 		std::deque<std::string> GetBrushNames() const noexcept;
+		int GetOffsetMoveSpeed() const noexcept;
+		void SetOffsetMoveSpeed(int speed) noexcept;
 
 		/// <summary>
 		/// Recompute layers that aren't drawn on
@@ -86,5 +88,6 @@ namespace Magia
 		int _actionIndex;
 
 		int _offsetX, _offsetY;
+		int _offsetMoveSpeed;
 	};
 }

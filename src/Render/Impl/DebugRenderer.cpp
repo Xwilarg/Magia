@@ -225,10 +225,14 @@ namespace Magia
         ImGui::SeparatorText("Movements");
         ImGui::Dummy(ImVec2());
         ImGui::SameLine(56);
-        if (ImGui::Button("Up", ImVec2(40, 20))) _engine.MoveCanvas(0, -1);
-        if (ImGui::Button("Left", ImVec2(40, 20))) _engine.MoveCanvas(-1, 0);
-        ImGui::SameLine(); if (ImGui::Button("Down", ImVec2(40, 20))) _engine.MoveCanvas(0, 1);
-        ImGui::SameLine(); if (ImGui::Button("Right", ImVec2(40, 20))) _engine.MoveCanvas(1, 0);
+        if (ImGui::Button("Up", ImVec2(40, 20))) _engine.MoveCanvas(0, 1);
+        if (ImGui::Button("Left", ImVec2(40, 20))) _engine.MoveCanvas(1, 0);
+        ImGui::SameLine(); if (ImGui::Button("Down", ImVec2(40, 20))) _engine.MoveCanvas(0, -1);
+        ImGui::SameLine(); if (ImGui::Button("Right", ImVec2(40, 20))) _engine.MoveCanvas(-1, 0);
+
+        int offsetSpeed = _engine.GetOffsetMoveSpeed();
+        ImGui::SliderInt("Move speed", &offsetSpeed, 1, 100);
+        _engine.SetOffsetMoveSpeed(offsetSpeed);
 
         ImGui::SeparatorText("Export");
         if (ImGui::Button("Save project"))
