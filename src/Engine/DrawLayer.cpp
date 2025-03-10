@@ -7,8 +7,8 @@
 
 namespace Magia
 {
-	DrawLayer::DrawLayer() noexcept
-		: _isActive(true), _pixels(CANVAS_WIDTH * WINDOW_HEIGHT)
+	DrawLayer::DrawLayer(int width, int height) noexcept
+		: _isActive(true), _pixels(width * height), _width(width), _height(height)
 	{
 		_name = new char[50];
 		strcpy(_name, "Default");
@@ -26,7 +26,7 @@ namespace Magia
 
 	void DrawLayer::TryDraw(int x, int y, int r, int g, int b, int a) noexcept
 	{
-		if (y >= 0 && x >= 0 && y < WINDOW_HEIGHT && x < CANVAS_WIDTH)
+		if (y >= 0 && x >= 0 && y < _height && x < _width)
 		{
 			Draw(x, y, r, g, b, a);
 		}
@@ -34,7 +34,7 @@ namespace Magia
 
 	void DrawLayer::Draw(int x, int y, int r, int g, int b, int a) noexcept
 	{
-		Set(y * CANVAS_WIDTH + x, (r << 24) + (g << 16) + (b << 8) + a);
+		Set(y * _width + x, (r << 24) + (g << 16) + (b << 8) + a);
 	}
 
 	const std::vector<uint32_t>& DrawLayer::Get() noexcept

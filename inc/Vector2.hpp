@@ -1,3 +1,5 @@
+#pragma once
+
 namespace Magia
 {
 	template<class T>

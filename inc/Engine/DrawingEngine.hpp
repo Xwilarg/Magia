@@ -8,6 +8,7 @@
 #include "DrawMode.hpp"
 #include "PaintBrush.hpp"
 #include "Action.hpp"
+#include "Vector2.hpp"
 
 namespace Magia
 {
@@ -51,6 +52,7 @@ namespace Magia
 		std::deque<std::string> GetBrushNames() const noexcept;
 		int GetOffsetMoveSpeed() const noexcept;
 		void SetOffsetMoveSpeed(int speed) noexcept;
+		const Vector2<int>& GetCanvasSize() const noexcept;
 
 		/// <summary>
 		/// Recompute layers that aren't drawn on
@@ -64,12 +66,13 @@ namespace Magia
 		SDL_Renderer* _renderer;
 		SDL_Texture* _framebuffer;
 
+		Vector2<int> _canvasSize;
+
 		std::vector<std::shared_ptr<DrawLayer>> _layers;
 		int _selectedLayer;
 		DrawLayer _brushPixels; // Current brush the user is drawing on
 		DrawLayer _layersBefore;
 		DrawLayer _layersAfter;
-		std::vector<uint32_t> _screenBuffer;
 
 		PaintBrush _renderingBrush; // TODO: We should probably not create a whole brush just to use its "MixColor" method
 		DrawMode _drawMode;

@@ -10,7 +10,7 @@
 namespace Magia
 {
 	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _dirtyRects(), _dev(), _rng(_dev()), _dist(1, 100), _screenBuffer(CANVAS_WIDTH * WINDOW_HEIGHT), _brushPixels(), _layers(), _selectedLayer(), _layersBefore(), _layersAfter(), _currentBrush(0), _brushes(), _actionHistory(), _actionIndex(0), _offsetX(0), _offsetY(0), _offsetMoveSpeed(5)
+		: _renderer(renderer), _canvasSize(CANVAS_WIDTH, WINDOW_HEIGHT), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _dirtyRects(), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(_canvasSize.X, _canvasSize.Y), _layers(), _selectedLayer(), _layersBefore(_canvasSize.X, _canvasSize.Y), _layersAfter(_canvasSize.X, _canvasSize.Y), _currentBrush(0), _brushes(), _actionHistory(), _actionIndex(0), _offsetX(0), _offsetY(0), _offsetMoveSpeed(5)
 	{
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Pencil", 10, 30, 5));
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Ink Pen", 5, 100, 1));
@@ -18,7 +18,6 @@ namespace Magia
 
 		_framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, WINDOW_HEIGHT);
 		_brushPixels.Clear(TRANSPARENT_PIXEL);
-		std::fill(_screenBuffer.begin(), _screenBuffer.end(), TRANSPARENT_PIXEL);
 
 		AddNewLayer();
 		RedrawLayerCache();
@@ -78,14 +77,14 @@ namespace Magia
 
 		for (const auto& layer : _layers | std::views::take(_selectedLayer) | std::views::filter([](auto l) { return l->GetActive(); }))
 		{
-			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+			for (int i = 0; i < _canvasSize.X * _canvasSize.Y; i++)
 			{
 				_layersBefore.Set(i, _renderingBrush.MixColor(_drawMode, layer->Get(i), _layersBefore.Get(i)));
 			}
 		}
 		for (const auto& layer : _layers | std::views::drop(_selectedLayer + 1) | std::views::filter([](auto l) { return l->GetActive(); }))
 		{
-			for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+			for (int i = 0; i < _canvasSize.X * _canvasSize.Y; i++)
 			{
 				_layersAfter.Set(i, _renderingBrush.MixColor(_drawMode, layer->Get(i), _layersAfter.Get(i)));
 			}
@@ -115,7 +114,7 @@ namespace Magia
 				for (int x = 0; x < canvas.w; x++)
 				{
 					auto globalI = (canvas.x + x + _offsetX) + ((canvas.y + y + _offsetY) * CANVAS_WIDTH);
-					if (globalI >=0 && globalI < CANVAS_WIDTH * WINDOW_HEIGHT)
+					if (globalI >= 0 && globalI < CANVAS_WIDTH * WINDOW_HEIGHT)
 						buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersBefore.Get(globalI), buf[x + (y * canvas.w)]);
 				}
 			}
@@ -130,7 +129,7 @@ namespace Magia
 						auto newY = canvas.y + y + _offsetY;
 
 						if (newX < 0 || newY < 0 || newX >= CANVAS_WIDTH || newY >= WINDOW_HEIGHT)
-						{
+						{ // TODO: Doesn't work if current layer is disabled
 							buf[x + (y * canvas.w)] = BLACK_PIXEL;
 						}
 						else
@@ -152,15 +151,6 @@ namespace Magia
 				}
 			}
 
-			// Store modification of framebuffer for export
-			for (int y = 0; y < canvas.h; y++)
-			{
-				for (int x = 0; x < canvas.w; x++)
-				{
-					auto globalI = (canvas.x + x) + ((canvas.y + y) * CANVAS_WIDTH);
-					_screenBuffer[globalI] = buf[x + (y * canvas.w)];
-				}
-			}
 			DrawCursor(mouseX, mouseY, canvas, buf);
 			SDL_UpdateTexture(_framebuffer, &canvas, &buf.front(), canvas.w * sizeof(uint32_t));
 
@@ -183,7 +173,23 @@ namespace Magia
 
 	uint32_t* DrawingEngine::GetFinalFramebuffer() noexcept
 	{
-		return &_screenBuffer.front();
+		std::vector<uint32_t> screen(_canvasSize.X * _canvasSize.Y);
+		for (int y = 0; y < _canvasSize.Y; y++)
+		{
+			for (int x = 0; x < _canvasSize.X; x++)
+			{
+				uint32_t color = _exportBackground;
+				auto globalI = x + (y * CANVAS_WIDTH);
+
+				color = _renderingBrush.MixColor(_drawMode, _layersBefore.Get(globalI), color);
+				auto& midLayer = _layers[_selectedLayer];
+				if (midLayer->GetActive()) color = _renderingBrush.MixColor(_drawMode, midLayer->Get(globalI), color);
+				color = _renderingBrush.MixColor(_drawMode, _layersAfter.Get(globalI), color);
+
+				screen.push_back(color);
+			}
+		}
+		return &screen.front();
 	}
 
 	void DrawingEngine::AddNewLayer() noexcept
@@ -399,6 +405,11 @@ namespace Magia
 	void DrawingEngine::SetOffsetMoveSpeed(int speed) noexcept
 	{
 		_offsetMoveSpeed = speed;
+	}
+
+	const Vector2<int>& DrawingEngine::GetCanvasSize() const noexcept
+	{
+		return _canvasSize;
 	}
 
 	void DrawingEngine::Undo() noexcept

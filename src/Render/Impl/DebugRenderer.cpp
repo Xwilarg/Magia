@@ -59,7 +59,8 @@ namespace Magia
         if (!target.ends_with(".png")) target += ".png";
 
         PngExporter exporter;
-        exporter.Export(target, CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetFinalFramebuffer());
+        auto size = _engine.GetCanvasSize();
+        exporter.Export(target, size.X, size.Y, _engine.GetFinalFramebuffer());
         _isPendingImport = false;
     }
 
@@ -75,7 +76,8 @@ namespace Magia
         if (!target.ends_with(".mcf")) target += ".mcf";
 
         McfExporter exporter;
-        exporter.Export(target, CANVAS_WIDTH, WINDOW_HEIGHT, _engine.GetLayers());
+        auto size = _engine.GetCanvasSize();
+        exporter.Export(target, size.X, size.Y, _engine.GetLayers());
         _isPendingImport = false;
     }
 

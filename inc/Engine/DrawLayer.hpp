@@ -11,7 +11,7 @@ namespace Magia
 	class DrawLayer
 	{
 	public:
-		DrawLayer() noexcept;
+		DrawLayer(int width, int height) noexcept;
 		~DrawLayer() noexcept;
 		/// <summary>
 		/// Paint all pixels with the color given in parameter
@@ -33,11 +33,10 @@ namespace Magia
 		bool GetActive() const noexcept;
 
 	private:
-		/// <summary>
-		/// Recalculate _drawRect
-		/// </summary>
 		std::vector<uint32_t> _pixels;
 		char* _name; // TODO: Turn into a std::string later (need to fight imgui first)
 		bool _isActive;
+		int _width;
+		int _height;
 	};
 }
