@@ -114,8 +114,9 @@ namespace Magia
 			{
 				for (int x = 0; x < canvas.w; x++)
 				{
-					auto globalI = (canvas.x + x) + ((canvas.y + y) * CANVAS_WIDTH);
-					buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersBefore.Get(globalI), buf[x + (y * canvas.w)]);
+					auto globalI = (canvas.x + x + _offsetX) + ((canvas.y + y + _offsetY) * CANVAS_WIDTH);
+					if (globalI >=0 && globalI < CANVAS_WIDTH * WINDOW_HEIGHT)
+						buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersBefore.Get(globalI), buf[x + (y * canvas.w)]);
 				}
 			}
 			auto& midLayer = _layers[_selectedLayer];
@@ -125,10 +126,17 @@ namespace Magia
 				{
 					for (int x = 0; x < canvas.w; x++)
 					{
-						auto globalI = (canvas.x + x) + ((canvas.y + y) * CANVAS_WIDTH);
+						auto globalI = (canvas.x + x + _offsetX) + ((canvas.y + y + _offsetY) * CANVAS_WIDTH);
 
-						auto step2 = brush->MixColor(_drawMode, _brushPixels.Get(globalI), midLayer->Get(globalI));
-						buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, step2, buf[x + (y * canvas.w)]);
+						if (globalI < 0 || globalI >= CANVAS_WIDTH * WINDOW_HEIGHT)
+						{
+							buf[x + (y * canvas.w)] = BLACK_PIXEL;
+						}
+						else
+						{
+							auto step2 = brush->MixColor(_drawMode, _brushPixels.Get(globalI), midLayer->Get(globalI));
+							buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, step2, buf[x + (y * canvas.w)]);
+						}
 					}
 				}
 			}
@@ -136,8 +144,9 @@ namespace Magia
 			{
 				for (int x = 0; x < canvas.w; x++)
 				{
-					auto globalI = (canvas.x + x) + ((canvas.y + y) * CANVAS_WIDTH);
-					buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersAfter.Get(globalI), buf[x + (y * canvas.w)]);
+					auto globalI = (canvas.x + x + _offsetX) + ((canvas.y + y + _offsetY) * CANVAS_WIDTH);
+					if (globalI >= 0 && globalI < CANVAS_WIDTH * WINDOW_HEIGHT)
+						buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersAfter.Get(globalI), buf[x + (y * canvas.w)]);
 				}
 			}
 
@@ -252,6 +261,14 @@ namespace Magia
 	{
 		_offsetX += x;
 		_offsetY += y;
+
+
+		SDL_Rect rect{};
+		rect.x = 0;
+		rect.y = 0;
+		rect.h = WINDOW_HEIGHT;
+		rect.w = CANVAS_WIDTH;
+		_dirtyRects.push_back(std::move(rect));
 	}
 
 	/// <summary>
@@ -275,7 +292,7 @@ namespace Magia
 				int dx = x - px, dy = y - py;
 				if (dx * dx + dy * dy <= sqrRad && _dist(_rng) < GetCurrentBrush()->GetPenForce())
 				{
-					_brushPixels.TryDraw(px, py, color[0], color[1], color[2], color[3]);
+					_brushPixels.TryDraw(px + _offsetX, py + _offsetY, color[0], color[1], color[2], color[3]);
 				}
 			}
 		}
