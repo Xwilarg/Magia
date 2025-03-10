@@ -126,14 +126,16 @@ namespace Magia
 				{
 					for (int x = 0; x < canvas.w; x++)
 					{
-						auto globalI = (canvas.x + x + _offsetX) + ((canvas.y + y + _offsetY) * CANVAS_WIDTH);
+						auto newX = canvas.x + x + _offsetX;
+						auto newY = canvas.y + y + _offsetY;
 
-						if (globalI < 0 || globalI >= CANVAS_WIDTH * WINDOW_HEIGHT)
+						if (newX < 0 || newY < 0 || newX >= CANVAS_WIDTH || newY >= WINDOW_HEIGHT)
 						{
 							buf[x + (y * canvas.w)] = BLACK_PIXEL;
 						}
 						else
 						{
+							auto globalI = newX + (newY * CANVAS_WIDTH);
 							auto step2 = brush->MixColor(_drawMode, _brushPixels.Get(globalI), midLayer->Get(globalI));
 							buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, step2, buf[x + (y * canvas.w)]);
 						}
