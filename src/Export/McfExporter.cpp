@@ -72,14 +72,14 @@ namespace Magia
 
 				if (adv == 0)
 				{
-					std::runtime_error("Invalid size 0");
+					throw std::runtime_error("Invalid size 0");
 				}
 
 				for (int px = 0; px < adv; px++)
 				{
 					if (i + px >= width * height)
 					{
-						std::runtime_error("Out of bounds");
+						throw std::runtime_error("Out of bounds");
 					}
 					layer->Set(i + px, pixel);
 				}
