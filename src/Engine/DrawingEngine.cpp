@@ -90,12 +90,7 @@ namespace Magia
 			}
 		}
 
-		SDL_Rect rect{};
-		rect.x = 0;
-		rect.y = 0;
-		rect.h = WINDOW_HEIGHT;
-		rect.w = CANVAS_WIDTH;
-		_dirtyRects.push_back(std::move(rect));
+		DirtyScreen();
 	}
 
 	void DrawingEngine::UpdateScreen(int mouseX, int mouseY) noexcept
@@ -171,7 +166,7 @@ namespace Magia
 		return _brushes[_currentBrush];
 	}
 
-	uint32_t* DrawingEngine::GetFinalFramebuffer() noexcept
+	std::vector<uint32_t> DrawingEngine::GetFinalFramebuffer() noexcept
 	{
 		std::vector<uint32_t> screen(_canvasSize.X * _canvasSize.Y);
 		for (int y = 0; y < _canvasSize.Y; y++)
@@ -189,7 +184,7 @@ namespace Magia
 				screen.push_back(color);
 			}
 		}
-		return &screen.front();
+		return screen;
 	}
 
 	void DrawingEngine::AddNewLayer() noexcept
@@ -270,7 +265,11 @@ namespace Magia
 		_offsetX += x * _offsetMoveSpeed;
 		_offsetY += y * _offsetMoveSpeed;
 
+		DirtyScreen();
+	}
 
+	void DrawingEngine::DirtyScreen() noexcept
+	{
 		SDL_Rect rect{};
 		rect.x = 0;
 		rect.y = 0;

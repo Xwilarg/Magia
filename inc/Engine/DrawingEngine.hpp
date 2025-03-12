@@ -25,6 +25,8 @@ namespace Magia
 
 		void MoveCanvas(int x, int y) noexcept;
 
+		void DirtyScreen() noexcept;
+
 		// Layers
 		std::vector<std::shared_ptr<DrawLayer>>& GetLayers() noexcept;
 		void AddNewLayer() noexcept;
@@ -43,7 +45,7 @@ namespace Magia
 		void SetCanUseMouse(bool value) noexcept;
 		DrawMode GetDrawMode() const noexcept;
 		void SetDrawMode(DrawMode mode) noexcept;
-		uint32_t* GetFinalFramebuffer() noexcept;
+		std::vector<uint32_t> GetFinalFramebuffer() noexcept;
 		std::shared_ptr<ABrush> GetCurrentBrush() noexcept;
 		int GetCurrentBrushIndex() const noexcept;
 		void SetCurrentBrushIndex(int index) noexcept;

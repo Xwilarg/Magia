@@ -60,7 +60,8 @@ namespace Magia
 
         PngExporter exporter;
         auto size = _engine.GetCanvasSize();
-        exporter.Export(target, size.X, size.Y, _engine.GetFinalFramebuffer());
+        auto pixels = _engine.GetFinalFramebuffer();
+        exporter.Export(target, size.X, size.Y, &pixels.front());
         _isPendingImport = false;
     }
 
@@ -92,6 +93,8 @@ namespace Magia
         McfExporter expoter;
         expoter.Import(std::string(*filelist), _engine.GetLayers());
         _isPendingImport = false;
+
+        _engine.DirtyScreen();
     }
 
     void DebugRenderer::PrepareRender() noexcept

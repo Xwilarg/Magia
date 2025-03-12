@@ -5,7 +5,6 @@
 
 namespace Magia
 {
-
 	void PngExporter::Export(const std::string& path, int width, int height, uint32_t* pixels)
 	{
         FILE* fp = fopen(path.c_str(), "wb");
