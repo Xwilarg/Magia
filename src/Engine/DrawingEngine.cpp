@@ -168,7 +168,7 @@ namespace Magia
 
 	std::vector<uint32_t> DrawingEngine::GetFinalFramebuffer() noexcept
 	{
-		std::vector<uint32_t> screen(_canvasSize.X * _canvasSize.Y);
+		std::vector<uint32_t> screen;
 		for (int y = 0; y < _canvasSize.Y; y++)
 		{
 			for (int x = 0; x < _canvasSize.X; x++)
