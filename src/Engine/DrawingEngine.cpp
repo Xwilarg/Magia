@@ -304,7 +304,7 @@ namespace Magia
 			}
 		}
 
-		SetAreaDirty(x - radius, y - radius, sqrRad, sqrRad);
+		SetAreaDirty(x - radius, y - radius, (x + radius) - (x - radius) + 1, (y + radius) - (y - radius) + 1);
 	}
 
 	void DrawingEngine::SetAreaDirty(int x, int y, int w, int h) noexcept
