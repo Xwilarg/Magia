@@ -3,7 +3,7 @@
 namespace Magia
 {
 	ABrush::ABrush(std::string&& name, int penSize, int penForce, int drawDistance, InterpolationMode interpMode) noexcept
-		: _name(std::move(name)), _penSize(penSize), _penForce(penForce), _drawDistance(drawDistance), _interpMode(interpMode)
+		: _name(std::move(name)), _penSize(penSize), _penForce(penForce), _drawDistance(drawDistance), _interpMode(interpMode), _stamp(penSize)
 	{ }
 
 	int ABrush::MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept
@@ -47,6 +47,7 @@ namespace Magia
 
 	void ABrush::SetPenSize(int size) noexcept
 	{
+		if (_penSize != size) _stamp.Recompute(size);
 		_penSize = size;
 	}
 
@@ -83,5 +84,10 @@ namespace Magia
 	const std::string& ABrush::GetName() const noexcept
 	{
 		return _name;
+	}
+
+	bool ABrush::CanBrushDraw(int pos) const noexcept
+	{
+		return _stamp.Get(pos);
 	}
 }

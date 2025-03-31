@@ -8,7 +8,7 @@ find_package(PNG REQUIRED)
 find_package(SDL3 CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 
-include_directories(./inc/ ./inc/Render ./inc/Render/Impl ./inc/Engine ./inc/Export ./inc/Brush ./inc/Event)
+include_directories(./inc/ ./inc/Render ./inc/Render/Impl ./inc/Engine ./inc/Export ./inc/Brush ./inc/Brush/Stamp ./inc/Event)
 
 add_executable(Magia
 "src/main.cpp"
@@ -16,6 +16,7 @@ add_executable(Magia
 "src/Engine/DrawingEngine.cpp" "src/Engine/DrawLayer.cpp" "src/Engine/InterpolationManager.cpp"
 "src/Export/PngExporter.cpp" "src/Export/McfExporter.cpp"
 "src/Brush/ABrush.cpp" "src/Brush/PaintBrush.cpp" "src/Brush/EraserBrush.cpp"
-"src/Event/ShortcutManager.cpp" )
+"src/Brush/Stamp/Stamp.cpp"
+"src/Event/ShortcutManager.cpp")
 
 target_link_libraries(Magia PRIVATE SDL3::SDL3 imgui::imgui PNG::PNG)

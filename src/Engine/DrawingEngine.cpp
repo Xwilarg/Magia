@@ -288,23 +288,23 @@ namespace Magia
 		auto brush = GetCurrentBrush();
 		auto& color = brush->GetColor();
 
-		auto radius = brush->GetPenSize() / 2.0;
-		auto sqrRad = radius * radius;
+		auto force = brush->GetPenForce();
+		auto size = brush->GetPenSize();
+		auto min = size / 2;
+		auto max = size / 2 + (size % 2 == 0 ? 0 : 1);
 
-		// https://stackoverflow.com/a/60555404
-		for (int px = x - radius; px <= x + radius; px++)
+		for (int px = 0; px < size; px++)
 		{
-			for (int py = y - radius; py <= y + radius; py++)
+			for (int py = 0; py < size; py++)
 			{
-				int dx = x - px, dy = y - py;
-				if (dx * dx + dy * dy <= sqrRad && _dist(_rng) < GetCurrentBrush()->GetPenForce())
+				if (brush->CanBrushDraw(py * size + px) && (force == 100 || _dist(_rng) < force))
 				{
-					_brushPixels.TryDraw(px + _offsetX, py + _offsetY, color[0], color[1], color[2], color[3]);
+					_brushPixels.TryDraw(x - size / 2 + px, y - size / 2 + py, color[0], color[1], color[2], color[3]);
 				}
 			}
 		}
 
-		SetAreaDirty(x - radius, y - radius, (x + radius) - (x - radius) + 1, (y + radius) - (y - radius) + 1);
+		SetAreaDirty(x - min, y - min, size, size);
 	}
 
 	void DrawingEngine::SetAreaDirty(int x, int y, int w, int h) noexcept

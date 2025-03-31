@@ -4,6 +4,7 @@
 #include <string>
 #include "InterpolationMode.hpp"
 #include "DrawMode.hpp"
+#include "Stamp.hpp"
 
 namespace Magia
 {
@@ -31,9 +32,12 @@ namespace Magia
 		void SetDrawDistance(int distance) noexcept;
 		InterpolationMode GetInterpolationMode() const noexcept;
 		void SetInterpolationMode(InterpolationMode mode) noexcept;
+		bool CanBrushDraw(int pos) const noexcept;
 	protected:
 		ABrush(std::string&& name, int penSize, int penForce, int drawDistance, InterpolationMode interpMode = InterpolationMode::CENTRIPETAL_CATMULL_ROM) noexcept;
 	private:
+		Stamp _stamp;
+
 		int MixSingleValue(int c1V, int c2V, float alpha1, float alpha2, float alpha) const noexcept;
 		int _penSize; // Define the radius of the amount of pixels we are drawing
 		int _penForce; // 100 mean all points are colored, 50 mean half of them are
