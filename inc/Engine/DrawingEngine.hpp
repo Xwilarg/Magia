@@ -15,7 +15,7 @@ namespace Magia
 	class DrawingEngine
 	{
 	public:
-		DrawingEngine(SDL_Renderer* renderer);
+		DrawingEngine(SDL_Renderer* renderer, int width, int height);
 		void UpdateScreen(int mouseX, int mouseY) noexcept;
 		void Paint(int x, int y) noexcept;
 		/// <summary>

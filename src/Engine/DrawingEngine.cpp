@@ -9,8 +9,8 @@
 
 namespace Magia
 {
-	DrawingEngine::DrawingEngine(SDL_Renderer* renderer)
-		: _renderer(renderer), _canvasSize(CANVAS_WIDTH, WINDOW_HEIGHT), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _dirtyRects(), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(_canvasSize.X, _canvasSize.Y), _layers(), _selectedLayer(), _layersBefore(_canvasSize.X, _canvasSize.Y), _layersAfter(_canvasSize.X, _canvasSize.Y), _currentBrush(0), _brushes(), _actionHistory(), _actionIndex(0), _offsetX(0), _offsetY(0), _offsetMoveSpeed(5)
+	DrawingEngine::DrawingEngine(SDL_Renderer* renderer, int width, int height)
+		: _renderer(renderer), _canvasSize(width, height), _canUseMouse(true), _drawMode(DrawMode::MULTIPLICATIVE), _renderingBrush("internal_brush", 1, 100, 1), _exportBackground(WHITE_PIXEL), _dirtyRects(), _dev(), _rng(_dev()), _dist(1, 100), _brushPixels(CANVAS_WIDTH, WINDOW_HEIGHT), _layers(), _selectedLayer(), _layersBefore(_canvasSize.X, _canvasSize.Y), _layersAfter(_canvasSize.X, _canvasSize.Y), _currentBrush(0), _brushes(), _actionHistory(), _actionIndex(0), _offsetX(0), _offsetY(0), _offsetMoveSpeed(5)
 	{
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Pencil", 10, 30, 5));
 		_brushes.emplace_back(std::make_shared<PaintBrush>("Ink Pen", 5, 100, 1));
@@ -34,13 +34,13 @@ namespace Magia
 		int err = dx - (radius << 1);
 
 		auto addToBuffer = [&](int x, int y)
-		{
-			if (x >= canvas.x && y >= canvas.y && x < canvas.x + canvas.w && y < canvas.y + canvas.h)
 			{
-				auto p = (x - canvas.x) + ((y - canvas.y) * canvas.w);
-				buf[p] = BLACK_PIXEL;
-			}
-		};
+				if (x >= canvas.x && y >= canvas.y && x < canvas.x + canvas.w && y < canvas.y + canvas.h)
+				{
+					auto p = (x - canvas.x) + ((y - canvas.y) * canvas.w);
+					buf[p] = BLACK_PIXEL;
+				}
+			};
 
 		while (x >= y)
 		{
@@ -123,7 +123,7 @@ namespace Magia
 						auto newX = canvas.x + x + _offsetX;
 						auto newY = canvas.y + y + _offsetY;
 
-						if (newX < 0 || newY < 0 || newX >= CANVAS_WIDTH || newY >= WINDOW_HEIGHT)
+						if (newX < 0 || newY < 0 || newX >= _canvasSize.X || newY >= _canvasSize.Y)
 						{ // TODO: Doesn't work if current layer is disabled
 							buf[x + (y * canvas.w)] = BLACK_PIXEL;
 						}
@@ -174,7 +174,7 @@ namespace Magia
 			for (int x = 0; x < _canvasSize.X; x++)
 			{
 				uint32_t color = _exportBackground;
-				auto globalI = x + (y * CANVAS_WIDTH);
+				auto globalI = x + (y * _canvasSize.X);
 
 				color = _renderingBrush.MixColor(_drawMode, _layersBefore.Get(globalI), color);
 				auto& midLayer = _layers[_selectedLayer];
@@ -297,9 +297,11 @@ namespace Magia
 		{
 			for (int py = 0; py < size; py++)
 			{
+				auto fx = px + _offsetX;
+				auto fy = py + _offsetY;
 				if (brush->CanBrushDraw(py * size + px) && (force == 100 || _dist(_rng) < force))
 				{
-					_brushPixels.TryDraw(x - size / 2 + px, y - size / 2 + py, color[0], color[1], color[2], color[3]);
+					_brushPixels.TryDraw(x - size / 2 + fx, y - size / 2 + fy, color[0], color[1], color[2], color[3]);
 				}
 			}
 		}
