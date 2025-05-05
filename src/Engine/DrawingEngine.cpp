@@ -109,7 +109,7 @@ namespace Magia
 				for (int x = 0; x < canvas.w; x++)
 				{
 					auto globalI = (canvas.x + x + _offsetX) + ((canvas.y + y + _offsetY) * CANVAS_WIDTH);
-					if (globalI >= 0 && globalI < CANVAS_WIDTH * WINDOW_HEIGHT)
+					if (globalI >= 0 && globalI < CANVAS_SIZE)
 						buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersBefore.Get(globalI), buf[x + (y * canvas.w)]);
 				}
 			}
@@ -120,17 +120,20 @@ namespace Magia
 				{
 					for (int x = 0; x < canvas.w; x++)
 					{
-						auto newX = canvas.x + x + _offsetX;
-						auto newY = canvas.y + y + _offsetY;
+						auto newX = canvas.x + x;
+						auto newY = canvas.y + y;
+						auto offX = canvas.x + x - _offsetX;
+						auto offY = canvas.y + y - _offsetY;
 
-						if (newX < 0 || newY < 0 || newX >= _canvasSize.X || newY >= _canvasSize.Y)
+						if (offX < 0 || offY < 0 || offX >= _canvasSize.X || offY >= _canvasSize.Y)
 						{ // TODO: Doesn't work if current layer is disabled
 							buf[x + (y * canvas.w)] = BLACK_PIXEL;
 						}
 						else
 						{
-							auto globalI = newX + (newY * CANVAS_WIDTH);
-							auto step2 = brush->MixColor(_drawMode, _brushPixels.Get(globalI), midLayer->Get(globalI));
+							auto localI = newX + (newY * CANVAS_WIDTH);
+							auto globalI = offX + (offY * _canvasSize.X);
+							auto step2 = brush->MixColor(_drawMode, _brushPixels.Get(localI), midLayer->Get(globalI));
 							buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, step2, buf[x + (y * canvas.w)]);
 						}
 					}
@@ -141,7 +144,7 @@ namespace Magia
 				for (int x = 0; x < canvas.w; x++)
 				{
 					auto globalI = (canvas.x + x + _offsetX) + ((canvas.y + y + _offsetY) * CANVAS_WIDTH);
-					if (globalI >= 0 && globalI < CANVAS_WIDTH * WINDOW_HEIGHT)
+					if (globalI >= 0 && globalI < CANVAS_SIZE)
 						buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersAfter.Get(globalI), buf[x + (y * canvas.w)]);
 				}
 			}
@@ -239,9 +242,12 @@ namespace Magia
 		// Apply brush to canvas & create history
 		auto action = std::make_unique<Action>();
 		action->DataBefore = layer->Get();
-		for (int i = 0; i < CANVAS_WIDTH * WINDOW_HEIGHT; i++)
+		int offset = _offsetX + (_offsetY * _canvasSize.X);
+		for (int i = 0; i < CANVAS_SIZE; i++)
 		{
-			layer->Set(i, brush->MixColor(_drawMode, _brushPixels.Get(i), layer->Get(i)));
+			auto iOffset = i - offset;
+			if (iOffset >= 0 && iOffset < CANVAS_SIZE)
+			layer->Set(iOffset, brush->MixColor(_drawMode, _brushPixels.Get(i), layer->Get(iOffset)));
 		}
 		action->DataAfter = layer->Get();
 		action->LayerID = _selectedLayer;
@@ -297,11 +303,9 @@ namespace Magia
 		{
 			for (int py = 0; py < size; py++)
 			{
-				auto fx = px + _offsetX;
-				auto fy = py + _offsetY;
 				if (brush->CanBrushDraw(py * size + px) && (force == 100 || _dist(_rng) < force))
 				{
-					_brushPixels.TryDraw(x - size / 2 + fx, y - size / 2 + fy, color[0], color[1], color[2], color[3]);
+					_brushPixels.TryDraw(x - size / 2 + px, y - size / 2 + py, color[0], color[1], color[2], color[3]);
 				}
 			}
 		}
