@@ -14,7 +14,7 @@ int main()
 {
     std::vector<std::shared_ptr<Magia::ARenderer>> renderers;
     auto baseRenderer = std::make_shared<Magia::BuiltinRenderer>();
-    Magia::DrawingEngine engine(baseRenderer->GetRenderer(), 800, 1000);
+    Magia::DrawingEngine engine(baseRenderer->GetRenderer(), 2000, 2000);
     auto debugRenderer = std::make_shared<Magia::DebugRenderer>(baseRenderer->GetWindow(), baseRenderer->GetRenderer(), engine);
 
     renderers.push_back(debugRenderer);

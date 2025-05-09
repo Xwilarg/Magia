@@ -20,7 +20,6 @@ namespace Magia
 		_brushPixels.Clear(TRANSPARENT_PIXEL);
 
 		AddNewLayer();
-		RedrawLayerCache();
 	}
 
 	// https://en.wikipedia.org/w/index.php?title=Midpoint_circle_algorithm&oldid=889172082#C_example
@@ -108,8 +107,8 @@ namespace Magia
 			{
 				for (int x = 0; x < canvas.w; x++)
 				{
-					auto globalI = (canvas.x + x + _offsetX) + ((canvas.y + y + _offsetY) * CANVAS_WIDTH);
-					if (globalI >= 0 && globalI < CANVAS_SIZE)
+					auto globalI = (canvas.x + x - _offsetX) + ((canvas.y + y - _offsetY) * _canvasSize.X);
+					if (globalI >= 0 && globalI < _canvasSize.X * _canvasSize.Y)
 						buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersBefore.Get(globalI), buf[x + (y * canvas.w)]);
 				}
 			}
@@ -122,8 +121,8 @@ namespace Magia
 					{
 						auto newX = canvas.x + x;
 						auto newY = canvas.y + y;
-						auto offX = canvas.x + x - _offsetX;
-						auto offY = canvas.y + y - _offsetY;
+						auto offX = newX - _offsetX;
+						auto offY = newY - _offsetY;
 
 						if (offX < 0 || offY < 0 || offX >= _canvasSize.X || offY >= _canvasSize.Y)
 						{ // TODO: Doesn't work if current layer is disabled
@@ -143,8 +142,8 @@ namespace Magia
 			{
 				for (int x = 0; x < canvas.w; x++)
 				{
-					auto globalI = (canvas.x + x + _offsetX) + ((canvas.y + y + _offsetY) * CANVAS_WIDTH);
-					if (globalI >= 0 && globalI < CANVAS_SIZE)
+					auto globalI = (canvas.x + x - _offsetX) + ((canvas.y + y - _offsetY) * _canvasSize.X);
+					if (globalI >= 0 && globalI < _canvasSize.X * _canvasSize.Y)
 						buf[x + (y * canvas.w)] = _renderingBrush.MixColor(_drawMode, _layersAfter.Get(globalI), buf[x + (y * canvas.w)]);
 				}
 			}
@@ -242,12 +241,18 @@ namespace Magia
 		// Apply brush to canvas & create history
 		auto action = std::make_unique<Action>();
 		action->DataBefore = layer->Get();
-		int offset = _offsetX + (_offsetY * _canvasSize.X);
-		for (int i = 0; i < CANVAS_SIZE; i++)
+
+		auto fullSize = _canvasSize.X * _canvasSize.Y;
+		for (int y = 0; y < WINDOW_HEIGHT; y++)
 		{
-			auto iOffset = i - offset;
-			if (iOffset >= 0 && iOffset < CANVAS_SIZE)
-			layer->Set(iOffset, brush->MixColor(_drawMode, _brushPixels.Get(i), layer->Get(iOffset)));
+			for (int x = 0; x < CANVAS_WIDTH; x++)
+			{
+				auto localI = x + (y * CANVAS_WIDTH);
+				auto globalI = (x - _offsetX) + ((y - _offsetY) * _canvasSize.X);
+				if (globalI >= 0 && globalI < fullSize) {
+					layer->Set(globalI, brush->MixColor(_drawMode, _brushPixels.Get(localI), layer->Get(globalI)));
+				}
+			}
 		}
 		action->DataAfter = layer->Get();
 		action->LayerID = _selectedLayer;
@@ -420,7 +425,7 @@ namespace Magia
 	void DrawingEngine::Undo() noexcept
 	{
 		auto&& data = _actionHistory[_actionIndex - 1];
-		for (int i = 0; i < WINDOW_HEIGHT * CANVAS_WIDTH; i++)
+		for (int i = 0; i < _canvasSize.X * _canvasSize.Y; i++)
 		{
 			_layers[data->LayerID]->Set(i, data->DataBefore[i]);
 		}
@@ -431,7 +436,7 @@ namespace Magia
 	void DrawingEngine::Redo() noexcept
 	{
 		auto&& data = _actionHistory[_actionIndex];
-		for (int i = 0; i < WINDOW_HEIGHT * CANVAS_WIDTH; i++)
+		for (int i = 0; i < _canvasSize.X * _canvasSize.Y; i++)
 		{
 			_layers[data->LayerID]->Set(i, data->DataAfter[i]);
 		}

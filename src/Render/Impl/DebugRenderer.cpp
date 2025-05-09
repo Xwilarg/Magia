@@ -295,6 +295,10 @@ namespace Magia
         {
             _lowestFps = framerate;
         }
+        if (ImGui::Button("Dirty canvas"))
+        {
+            _engine.DirtyScreen();
+        }
 
         ImGui::End();
 
