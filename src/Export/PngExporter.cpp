@@ -64,4 +64,60 @@ namespace Magia
         png_destroy_write_struct(&pngPtr, &infoPtr);
         fclose(fp);
 	}
+
+    void PngExporter::Import(const std::string& path, std::vector<std::shared_ptr<DrawLayer>>& layers)
+    {
+        FILE* fp = fopen(path.c_str(), "rb");
+
+        if (!fp)
+            throw std::runtime_error("Failed to open file");
+
+        unsigned char sig[8];
+
+        fread(sig, 1, 8, fp);
+        if (!png_check_sig(sig, 8))
+            throw std::runtime_error("Bad signature");
+
+        png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+        if (!png_ptr) throw std::runtime_error("Out of memory");
+        png_infop info_ptr = png_create_info_struct(png_ptr);
+        if (!info_ptr) {
+            png_destroy_read_struct(&png_ptr, NULL, NULL);
+            fclose(fp);
+            return throw std::runtime_error("Out of memory");
+        }
+
+        /*if (setjmp(png_ptr->jmpbuf)) {
+            png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+            fclose(fp);
+            throw std::runtime_error("Fatal error");
+        }*/
+
+        png_init_io(png_ptr, fp);
+        png_set_sig_bytes(png_ptr, 8);
+        png_read_info(png_ptr, info_ptr);
+
+        png_uint_32 width, height;
+        int bit_depth, color_type;
+        png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, NULL, NULL, NULL);
+
+        layers.clear();
+        std::shared_ptr<DrawLayer> layer = std::make_shared<DrawLayer>(width, height);
+
+        png_bytepp row_pointers;
+
+        for (int y = 0; y < height; y++)
+        {
+            row_pointers = png_get_rows(png_ptr, info_ptr);
+            for (int x = 0; x < width; x++)
+            {
+                auto b = *(row_pointers + x);
+                layer->Set(y * width + x, *b);
+            }
+        }
+        layers.push_back(std::move(layer));
+
+        png_destroy_read_struct(&png_ptr, NULL, NULL);
+        fclose(fp);
+    }
 }

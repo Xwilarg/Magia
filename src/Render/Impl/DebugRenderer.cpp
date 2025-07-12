@@ -28,6 +28,11 @@ namespace Magia
         static_cast<DebugRenderer*>(userdata)->OpenFromMcf(filelist, filter);
     }
 
+    void forwardToOpenFromPng(void* userdata, const char* const* filelist, int filter)
+    {
+        static_cast<DebugRenderer*>(userdata)->OpenFromPng(filelist, filter);
+    }
+
 	DebugRenderer::DebugRenderer(SDL_Window* window, SDL_Renderer* renderer, DrawingEngine& engine)
         : _window(window), _renderer(renderer), _engine(engine), _isPendingImport(false), _lowestFps(std::numeric_limits<float>::max())
 	{
@@ -91,6 +96,21 @@ namespace Magia
         }
 
         McfExporter expoter;
+        expoter.Import(std::string(*filelist), _engine.GetLayers());
+        _isPendingImport = false;
+
+        _engine.DirtyScreen();
+    }
+
+    void DebugRenderer::OpenFromPng(const char* const* filelist, int filter)
+    {
+        if (!filelist || !*filelist)
+        {
+            _isPendingImport = false;
+            return;
+        }
+
+        PngExporter expoter;
         expoter.Import(std::string(*filelist), _engine.GetLayers());
         _isPendingImport = false;
 
@@ -267,6 +287,15 @@ namespace Magia
                 { "PNG image",  "png" }
             };
             SDL_ShowSaveFileDialog(forwardToSaveToPng, this, _window, filters, 1, nullptr);
+            _isPendingImport = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Import from PNG"))
+        {
+            const SDL_DialogFileFilter filters[] = {
+                { "PNG image",  "png" }
+            };
+            SDL_ShowSaveFileDialog(forwardToOpenFromPng, this, _window, filters, 1, nullptr);
             _isPendingImport = true;
         }
 
