@@ -159,7 +159,6 @@ namespace Magia
         ImGui::SeparatorText("History");
         auto currIndex = _engine.GetCurrentHistoryIndex();
         auto maxIndex = _engine.GetHistoryCount();
-        ImGui::Text((std::to_string(currIndex) + " / " + std::to_string(maxIndex)).c_str());
         if (currIndex == 0) ImGui::BeginDisabled();
         if (ImGui::Button("Undo"))
         {
@@ -173,6 +172,8 @@ namespace Magia
             _engine.Redo();
         }
         if (currIndex == maxIndex) ImGui::EndDisabled();
+        ImGui::SameLine();
+        ImGui::Text((std::to_string(currIndex) + " / " + std::to_string(maxIndex)).c_str());
 
         ImGui::SeparatorText("Layers");
         if (ImGui::Button("Add"))
@@ -248,6 +249,7 @@ namespace Magia
             SDL_ShowSaveFileDialog(forwardToSaveToMcf, this, _window, filters, 1, nullptr);
             _isPendingImport = true;
         }
+        ImGui::SameLine();
         if (ImGui::Button("Load project"))
         {
             const SDL_DialogFileFilter filters[] = {
@@ -256,9 +258,9 @@ namespace Magia
             SDL_ShowOpenFileDialog(forwardToOpenFromMcf, this, _window, filters, 1, nullptr, false);
             _isPendingImport = true;
         }
-        bool isBgTransparent = _engine.GetExportBackgroundColor() == TRANSPARENT_PIXEL;
-        ImGui::Checkbox("Make export background transparent", &isBgTransparent);
-        _engine.SetExportBackgroundColor(isBgTransparent ? TRANSPARENT_PIXEL : WHITE_PIXEL);
+        bool isBgOpaque = _engine.GetExportBackgroundColor() != TRANSPARENT_PIXEL;
+        ImGui::Checkbox("Export background", &isBgOpaque);
+        _engine.SetExportBackgroundColor(isBgOpaque ? WHITE_PIXEL : TRANSPARENT_PIXEL);
         if (ImGui::Button("Export to PNG"))
         {
             const SDL_DialogFileFilter filters[] = {
@@ -283,14 +285,21 @@ namespace Magia
         ImGui::Text("Framerate");
         ImGui::SameLine();
         auto framerate = ImGui::GetIO().Framerate;
-        ImGui::Text(std::to_string(framerate).c_str());
+        std::stringstream streamFps;
+        streamFps << std::fixed << std::setprecision(2) << framerate;
+        std::string fps = streamFps.str();
+        ImGui::Text(fps.c_str());
         if (framerate < _lowestFps)
         {
             _lowestFps = framerate;
         }
+        ImGui::SameLine();
         ImGui::Text("Lowest");
         ImGui::SameLine();
-        ImGui::Text(std::to_string(_lowestFps).c_str());
+        std::stringstream streamLowestFps;
+        streamLowestFps << std::fixed << std::setprecision(2) << _lowestFps;
+        std::string lowestFps = streamLowestFps.str();
+        ImGui::Text(lowestFps.c_str());
         if (ImGui::Button("Reset"))
         {
             _lowestFps = framerate;
